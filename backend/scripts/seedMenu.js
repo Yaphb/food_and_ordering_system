@@ -71,6 +71,20 @@ const sampleMenuItems = [
     price: 5.99,
     category: 'beverage',
     image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400'
+  },
+  {
+    name: 'Cheesecake',
+    description: 'New York style cheesecake with berry compote',
+    price: 8.50,
+    category: 'dessert',
+    image: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=400'
+  },
+  {
+    name: 'Lemonade',
+    description: 'Homemade fresh lemonade',
+    price: 4.00,
+    category: 'beverage',
+    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'
   }
 ];
 

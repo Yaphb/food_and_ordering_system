@@ -7,6 +7,12 @@ const StaffDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Search, Filter, and Pagination states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 5;
+
   useEffect(() => {
     fetchOrders();
     const interval = setInterval(fetchOrders, 30000);
@@ -33,14 +39,69 @@ const StaffDashboard = () => {
     }
   };
 
+  // Filter and search logic
+  const filteredOrders = orders.filter(order => {
+    const orderId = (order._id || order.id)?.toString() || '';
+    const customerName = order.user?.name?.toLowerCase() || '';
+    const phone = order.phone?.toLowerCase() || '';
+    const address = order.deliveryAddress?.toLowerCase() || '';
+    const search = searchTerm.toLowerCase();
+    
+    const matchesSearch = orderId.includes(search) ||
+                         customerName.includes(search) ||
+                         phone.includes(search) ||
+                         address.includes(search);
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const startIndex = (currentPage - 1) * ordersPerPage;
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ordersPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
+
   if (loading) return <div className="loading">Loading orders...</div>;
 
   return (
     <div className="staff-container">
       <h2>Staff Dashboard - Order Management</h2>
+      
+      <div className="filters-container">
+        <input
+          type="text"
+          placeholder="Search by order ID, customer, phone, or address..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="preparing">Preparing</option>
+          <option value="ready">Ready</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div className="orders-count">
+        Showing {paginatedOrders.length} of {filteredOrders.length} orders
+      </div>
+
       <div className="orders-list">
-        {orders.length > 0 ? (
-          orders.map(order => (
+        {paginatedOrders.length > 0 ? (
+          paginatedOrders.map(order => (
             <div key={order._id || order.id} className="staff-order-card">
               <div className="order-header">
                 <h3>Order #{(order._id || order.id)?.toString().slice(-6) || 'N/A'}</h3>
@@ -72,10 +133,32 @@ const StaffDashboard = () => {
         ))
         ) : (
           <div className="no-orders">
-            <p>No orders to display</p>
+            <p>No orders found</p>
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Previous
+          </button>
+          <span className="pagination-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

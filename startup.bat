@@ -1,6 +1,8 @@
 @echo off
+setlocal enabledelayedexpansion
 title Food Ordering System
 color 0A
+mode con: cols=80 lines=30
 
 :MENU
 cls
@@ -23,6 +25,9 @@ if "%choice%"=="3" goto STOP
 if "%choice%"=="4" goto INFO
 if "%choice%"=="5" goto RESET
 if "%choice%"=="6" goto EXIT
+echo.
+echo [ERROR] Invalid choice! Please enter 1-6.
+timeout /t 2 >nul
 goto MENU
 
 :SETUP
@@ -41,6 +46,9 @@ set /p db="Choose (1-3): "
 if "%db%"=="1" goto SETUP_XAMPP
 if "%db%"=="2" goto SETUP_AWS
 if "%db%"=="3" goto MENU
+echo.
+echo [ERROR] Invalid choice! Please enter 1-3.
+timeout /t 2 >nul
 goto SETUP
 
 :SETUP_XAMPP
@@ -55,25 +63,88 @@ if not exist "C:\xampp\mysql\bin\mysql.exe" (
     goto MENU
 )
 
-echo [1/9] Starting XAMPP...
+echo [1/9] Opening XAMPP Control Panel...
 start "" "C:\xampp\xampp-control.exe"
-timeout /t 3 >nul
+timeout /t 2 >nul
 
-echo [2/9] Creating database...
-"C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE IF NOT EXISTS food_ordering;"
+echo [2/9] Starting Apache...
+tasklist /FI "IMAGENAME eq httpd.exe" 2>nul | find /I "httpd.exe" >nul 2>&1
+if errorlevel 1 (
+    echo Starting Apache service...
+    start /B "" "C:\xampp\apache\bin\httpd.exe"
+    timeout /t 3 >nul
+    tasklist /FI "IMAGENAME eq httpd.exe" 2>nul | find /I "httpd.exe" >nul 2>&1
+    if errorlevel 1 (
+        echo [WARNING] Failed to start Apache automatically
+        echo [INFO] Please start it manually from XAMPP Control Panel
+    ) else (
+        echo [OK] Apache started
+    )
+) else (
+    echo [OK] Apache already running
+)
 
-echo [3/9] Importing schema...
-"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\schema.sql
+echo [3/9] Starting MySQL...
+tasklist /FI "IMAGENAME eq mysqld.exe" 2>nul | find /I "mysqld.exe" >nul 2>&1
+if errorlevel 1 (
+    echo Starting MySQL service...
+    start /B "" "C:\xampp\mysql\bin\mysqld.exe" --defaults-file="C:\xampp\mysql\bin\my.ini" --standalone
+    timeout /t 5 >nul
+    tasklist /FI "IMAGENAME eq mysqld.exe" 2>nul | find /I "mysqld.exe" >nul 2>&1
+    if errorlevel 1 (
+        echo [WARNING] Failed to start MySQL automatically
+        echo [INFO] Please start it manually from XAMPP Control Panel
+        echo.
+        echo Press any key after starting MySQL...
+        pause >nul
+    ) else (
+        echo [OK] MySQL started
+    )
+) else (
+    echo [OK] MySQL already running
+)
+echo.
 
-echo [4/9] Importing data...
-"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\seed.sql
+echo [4/9] Creating database...
+"C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE IF NOT EXISTS food_ordering;" 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to create database. Check MySQL is running.
+    pause
+    goto MENU
+)
 
-echo [5/9] Installing backend...
+echo [5/9] Importing schema...
+"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\schema.sql 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to import schema
+    pause
+    goto MENU
+)
+
+echo [6/9] Importing data...
+"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\seed.sql 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to import data
+    pause
+    goto MENU
+)
+
+echo [7/9] Installing backend...
 cd backend
-if not exist "node_modules" call npm install
+if not exist "node_modules" (
+    echo Installing dependencies (this may take a while)...
+    call npm install >nul 2>&1
+    if errorlevel 1 (
+        echo [ERROR] Backend installation failed
+        cd ..
+        pause
+        goto MENU
+    )
+    echo [OK] Backend dependencies installed
+)
 cd ..
 
-echo [6/9] Creating backend .env...
+echo [8/9] Creating backend .env...
 if not exist "backend\.env" (
     (
         echo PORT=5000
@@ -87,23 +158,36 @@ if not exist "backend\.env" (
     ) > backend\.env
 )
 
-echo [7/9] Installing frontend...
+echo [9/9] Installing frontend...
 cd frontend
-if not exist "node_modules" call npm install
+if not exist "node_modules" (
+    echo Installing dependencies (this may take a while)...
+    call npm install >nul 2>&1
+    if errorlevel 1 (
+        echo [ERROR] Frontend installation failed
+        cd ..
+        pause
+        goto MENU
+    )
+    echo [OK] Frontend dependencies installed
+)
 cd ..
 
-echo [8/9] Creating frontend .env...
+echo [10/10] Creating frontend .env...
 if not exist "frontend\.env" (
     echo REACT_APP_API_URL=http://localhost:5000 > frontend\.env
 )
 
-echo [9/9] Done!
+echo [11/11] Done!
 echo.
 echo ========================================
 echo   SETUP COMPLETE
 echo ========================================
 echo.
-echo Login: admin@foodorder.com / admin123
+echo Default Login Credentials:
+echo   Admin:    admin@gmail.com / 123456
+echo   Staff:    staff@gmail.com / 123456
+echo   Customer: johndoe@gmail.com / 123456
 echo.
 pause
 goto MENU
@@ -120,7 +204,17 @@ set /p pass="Password: "
 echo.
 echo [1/5] Installing backend...
 cd backend
-if not exist "node_modules" call npm install
+if not exist "node_modules" (
+    echo Installing dependencies (this may take a while)...
+    call npm install >nul 2>&1
+    if errorlevel 1 (
+        echo [ERROR] Backend installation failed
+        cd ..
+        pause
+        goto MENU
+    )
+    echo [OK] Backend dependencies installed
+)
 cd ..
 
 echo [2/5] Creating backend .env...
@@ -137,7 +231,17 @@ echo [2/5] Creating backend .env...
 
 echo [3/5] Installing frontend...
 cd frontend
-if not exist "node_modules" call npm install
+if not exist "node_modules" (
+    echo Installing dependencies (this may take a while)...
+    call npm install >nul 2>&1
+    if errorlevel 1 (
+        echo [ERROR] Frontend installation failed
+        cd ..
+        pause
+        goto MENU
+    )
+    echo [OK] Frontend dependencies installed
+)
 cd ..
 
 echo [4/5] Creating frontend .env...
@@ -189,11 +293,23 @@ echo ========================================
 echo   STOPPING
 echo ========================================
 echo.
+echo Closing Backend and Frontend windows...
+powershell -Command "Get-Process | Where-Object {$_.MainWindowTitle -eq 'Backend' -or $_.MainWindowTitle -eq 'Frontend'} | ForEach-Object { Stop-Process -Id $_.Id -Force }" 2>nul
+
+echo Stopping all Node.js processes...
 taskkill /F /IM node.exe >nul 2>&1
+
+echo Closing cmd windows...
+for /f "tokens=2 delims=," %%a in ('tasklist /V /FO CSV ^| findstr /I "Backend Frontend"') do (
+    taskkill /F /PID %%~a >nul 2>&1
+)
+
+timeout /t 1 >nul
+tasklist /FI "IMAGENAME eq node.exe" 2>nul | find /I "node.exe" >nul 2>&1
 if errorlevel 1 (
-    echo No processes found
+    echo [OK] All processes stopped and windows closed
 ) else (
-    echo Stopped successfully
+    echo [WARNING] Some processes may still be running
 )
 echo.
 pause
@@ -207,20 +323,20 @@ echo ========================================
 echo.
 
 echo Node.js:
-where node >nul 2>nul
+where node >nul 2>&1
 if errorlevel 1 (
     echo   [ERROR] Not installed
 ) else (
-    node --version
+    for /f "delims=" %%i in ('node --version 2^>nul') do echo   %%i
 )
 
 echo.
 echo npm:
-where npm >nul 2>nul
+where npm >nul 2>&1
 if errorlevel 1 (
     echo   [ERROR] Not installed
 ) else (
-    npm --version
+    for /f "delims=" %%i in ('npm --version 2^>nul') do echo   %%i
 )
 
 echo.
@@ -249,7 +365,7 @@ if exist "frontend\node_modules" (
 
 echo.
 echo Running:
-tasklist /FI "IMAGENAME eq node.exe" 2>nul | find /I "node.exe" >nul
+tasklist /FI "IMAGENAME eq node.exe" 2>nul | find /I "node.exe" >nul 2>&1
 if errorlevel 1 (
     echo   No processes
 ) else (
@@ -261,9 +377,12 @@ echo ========================================
 echo   LOGIN CREDENTIALS
 echo ========================================
 echo.
-echo Admin:    admin@gmail.com / 123456
-echo Staff:    staff@gmail.com / 123456
-echo Customer: johndoe@gmail.com / 123456
+echo Admin:     admin@gmail.com / 123456
+echo Staff:     staff@gmail.com / 123456
+echo Customer1: johndoe@gmail.com / 123456
+echo Customer2: janesmith@gmail.com / 123456
+echo.
+echo Note: All passwords are "123456" (bcrypt hashed)
 echo.
 pause
 goto MENU
@@ -294,9 +413,26 @@ if errorlevel 1 (
 
 echo.
 echo Resetting...
-"C:\xampp\mysql\bin\mysql.exe" -u root -e "DROP DATABASE IF EXISTS food_ordering; CREATE DATABASE food_ordering;"
-"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\schema.sql
-"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\seed.sql
+"C:\xampp\mysql\bin\mysql.exe" -u root -e "DROP DATABASE IF EXISTS food_ordering; CREATE DATABASE food_ordering;" 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to reset database. Check MySQL is running.
+    pause
+    goto MENU
+)
+
+"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\schema.sql 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to import schema
+    pause
+    goto MENU
+)
+
+"C:\xampp\mysql\bin\mysql.exe" -u root food_ordering < backend\database\seed.sql 2>nul
+if errorlevel 1 (
+    echo [ERROR] Failed to import data
+    pause
+    goto MENU
+)
 
 echo.
 echo Database reset complete!

@@ -16,6 +16,13 @@ const AdminDashboard = () => {
     available: true
   });
 
+  // Search, Filter, and Pagination states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterAvailability, setFilterAvailability] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchMenuItems();
   }, []);
@@ -83,6 +90,27 @@ const AdminDashboard = () => {
     setShowForm(false);
   };
 
+  // Filter and search logic
+  const filteredItems = menuItems.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
+    const matchesAvailability = filterAvailability === 'all' || 
+                               (filterAvailability === 'available' && item.available) ||
+                               (filterAvailability === 'unavailable' && !item.available);
+    return matchesSearch && matchesCategory && matchesAvailability;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, filterAvailability]);
+
   return (
     <div className="admin-container">
       <h2>Admin Dashboard</h2>
@@ -144,7 +172,40 @@ const AdminDashboard = () => {
       )}
 
       <div className="admin-items">
-        <h3>Menu Items</h3>
+        <h3>Menu Items ({filteredItems.length})</h3>
+        
+        <div className="filters-container">
+          <input
+            type="text"
+            placeholder="Search by name or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Categories</option>
+            <option value="appetizer">Appetizer</option>
+            <option value="main">Main Course</option>
+            <option value="dessert">Dessert</option>
+            <option value="beverage">Beverage</option>
+          </select>
+
+          <select
+            value={filterAvailability}
+            onChange={(e) => setFilterAvailability(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Items</option>
+            <option value="available">Available Only</option>
+            <option value="unavailable">Unavailable Only</option>
+          </select>
+        </div>
+
         <table>
           <thead>
             <tr>
@@ -156,20 +217,48 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {menuItems.map(item => (
-              <tr key={item.id || item._id}>
-                <td>{item.name}</td>
-                <td>{item.category}</td>
-                <td>RM{parseFloat(item.price).toFixed(2)}</td>
-                <td>{item.available ? '✓' : '✗'}</td>
-                <td>
-                  <button onClick={() => handleEdit(item)} className="btn-edit">Edit</button>
-                  <button onClick={() => handleDelete(item.id || item._id)} className="btn-delete">Delete</button>
-                </td>
+            {paginatedItems.length > 0 ? (
+              paginatedItems.map(item => (
+                <tr key={item.id || item._id}>
+                  <td>{item.name}</td>
+                  <td>{item.category}</td>
+                  <td>RM{parseFloat(item.price).toFixed(2)}</td>
+                  <td>{item.available ? '✓' : '✗'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(item)} className="btn-edit">Edit</button>
+                    <button onClick={() => handleDelete(item.id || item._id)} className="btn-delete">Delete</button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" style={{ textAlign: 'center' }}>No items found</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="pagination-btn"
+            >
+              Previous
+            </button>
+            <span className="pagination-info">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="pagination-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

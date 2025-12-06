@@ -36,12 +36,12 @@ INSERT INTO menu_items (name, description, price, category, image, available) VA
 -- Desserts
 ('Chocolate Cake', 'Rich chocolate cake with chocolate frosting', 34.00, 'dessert', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400', TRUE),
 ('Tiramisu', 'Classic Italian dessert with coffee and mascarpone', 38.00, 'dessert', 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400', TRUE),
-('Cheesecake', 'New York style cheesecake with berry compote', 36.00, 'dessert', 'https://images.unsplash.com/photo-1533134486753-c833f0ed4866?w=400', TRUE),
+('Cheesecake', 'New York style cheesecake with berry compote', 36.00, 'dessert', 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=400', TRUE),
 
 -- Beverages
 ('Fresh Orange Juice', 'Freshly squeezed orange juice', 21.00, 'beverage', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400', TRUE),
 ('Iced Coffee', 'Cold brew coffee with ice', 25.00, 'beverage', 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400', TRUE),
-('Lemonade', 'Homemade fresh lemonade', 17.00, 'beverage', 'https://images.unsplash.com/photo-1523677011781-c91d1bbe2f9d?w=400', TRUE),
+('Lemonade', 'Homemade fresh lemonade', 17.00, 'beverage', 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400', TRUE),
 ('Smoothie', 'Mixed berry smoothie', 30.00, 'beverage', 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400', TRUE);
 
 -- Insert sample orders (using user IDs 3 and 4 - the customers)
