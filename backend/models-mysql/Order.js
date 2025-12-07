@@ -2,19 +2,21 @@ const { query, transaction } = require('../config/mysql');
 
 class Order {
   static async create(orderData) {
-    const { userId, items, totalPrice, deliveryAddress, phone, notes } = orderData;
+    const { userId, items, totalPrice, deliveryType, deliveryAddress, pickupDateTime, phone, notes } = orderData;
     
     return await transaction(async (connection) => {
       // Insert order
       const orderSql = `
-        INSERT INTO orders (user_id, total_price, status, delivery_address, phone, notes)
-        VALUES (?, ?, 'pending', ?, ?, ?)
+        INSERT INTO orders (user_id, total_price, status, delivery_type, delivery_address, pickup_datetime, phone, notes)
+        VALUES (?, ?, 'pending', ?, ?, ?, ?, ?)
       `;
       
       const orderResult = await connection.execute(orderSql, [
         userId,
         parseFloat(totalPrice),
-        deliveryAddress,
+        deliveryType || 'delivery',
+        deliveryAddress || null,
+        pickupDateTime || null,
         phone,
         notes || null
       ]);
@@ -90,7 +92,9 @@ class Order {
       })),
       totalPrice: parseFloat(order.total_price),
       status: order.status,
+      deliveryType: order.delivery_type || 'delivery',
       deliveryAddress: order.delivery_address,
+      pickupDateTime: order.pickup_datetime,
       phone: order.phone,
       notes: order.notes,
       createdAt: order.created_at,

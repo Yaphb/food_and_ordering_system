@@ -11,10 +11,12 @@ const Cart = () => {
   const { cart, updateQuantity, removeFromCart, getTotal, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
   const { showToast } = useContext(ToastContext);
+  const [deliveryType, setDeliveryType] = useState('pickup'); // 'pickup' or 'delivery'
   const [orderData, setOrderData] = useState({
     deliveryAddress: user?.address || '',
     phone: user?.phone || '',
-    notes: ''
+    notes: '',
+    pickupDateTime: ''
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -40,10 +42,20 @@ const Cart = () => {
         price: parseFloat(item.price)
       }));
 
-      await axios.post(`${API_URL}/api/orders`, {
+      const orderPayload = {
         items,
-        ...orderData
-      });
+        deliveryType,
+        phone: orderData.phone,
+        notes: orderData.notes
+      };
+
+      if (deliveryType === 'delivery') {
+        orderPayload.deliveryAddress = orderData.deliveryAddress;
+      } else {
+        orderPayload.pickupDateTime = orderData.pickupDateTime;
+      }
+
+      await axios.post(`${API_URL}/api/orders`, orderPayload);
 
       clearCart();
       showToast('Order placed successfully! 🎉', 'success');
@@ -53,6 +65,19 @@ const Cart = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get minimum datetime (tomorrow at current time)
+  const getMinDateTime = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const hours = String(tomorrow.getHours()).padStart(2, '0');
+    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   const handleQuantityChange = (item, newQuantity) => {
@@ -231,57 +256,133 @@ const Cart = () => {
         </div>
 
         <div className="order-section">
-          <div className="order-summary">
-            <h3>Order Summary</h3>
-            <div className="summary-row">
-              <span>Subtotal</span>
-              <span>RM{getTotal().toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span>Delivery Fee</span>
-              <span>RM5.00</span>
-            </div>
-            <div className="summary-divider"></div>
-            <div className="summary-row total">
-              <span>Total</span>
-              <span>RM{(getTotal() + 5).toFixed(2)}</span>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmitOrder} className="checkout-form">
-            <h3>Delivery Information</h3>
-            <div className="form-group">
-              <label>Delivery Address</label>
-              <input
-                type="text"
-                placeholder="Enter your delivery address"
-                value={orderData.deliveryAddress}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= MAX_ADDRESS_LENGTH) {
-                    setOrderData({ ...orderData, deliveryAddress: value });
-                  }
-                }}
-                required
-              />
-              <span className="char-count">{orderData.deliveryAddress.length}/{MAX_ADDRESS_LENGTH}</span>
+            <div className="order-summary-compact">
+              <h3>Order Summary</h3>
+              <div className="summary-content">
+                <div className="summary-row">
+                  <span>Subtotal</span>
+                  <span>RM{getTotal().toFixed(2)}</span>
+                </div>
+                {deliveryType === 'delivery' && (
+                  <div className="summary-row">
+                    <span>Delivery Fee</span>
+                    <span>RM5.00</span>
+                  </div>
+                )}
+                <div className="summary-row total">
+                  <span>Total</span>
+                  <span>RM{(getTotal() + (deliveryType === 'delivery' ? 5 : 0)).toFixed(2)}</span>
+                </div>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input
-                type="tel"
-                placeholder="Enter your phone number"
-                value={orderData.phone}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= MAX_PHONE_LENGTH) {
-                    setOrderData({ ...orderData, phone: value });
-                  }
-                }}
-                required
-              />
-              <span className="char-count">{orderData.phone.length}/{MAX_PHONE_LENGTH}</span>
+
+            <h3>Order Information</h3>
+            
+            <div className="delivery-type-selector">
+              <button
+                type="button"
+                className={`delivery-type-btn ${deliveryType === 'pickup' ? 'active' : ''}`}
+                onClick={() => setDeliveryType('pickup')}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                <span>Pickup</span>
+                <span className="delivery-badge">Free</span>
+              </button>
+              <button
+                type="button"
+                className={`delivery-type-btn ${deliveryType === 'delivery' ? 'active' : ''}`}
+                onClick={() => setDeliveryType('delivery')}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="1" y="3" width="15" height="13" />
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+                <span>Delivery</span>
+                <span className="delivery-badge">RM5.00</span>
+              </button>
             </div>
+
+            <div className="form-row">
+              {deliveryType === 'pickup' ? (
+                <div className="form-group form-group-full">
+                  <label>Pickup Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={orderData.pickupDateTime}
+                    min={getMinDateTime()}
+                    onChange={(e) => setOrderData({ ...orderData, pickupDateTime: e.target.value })}
+                    required
+                    className="datetime-input"
+                  />
+                  <span className="input-hint">Select when you want to pick up your order</span>
+                </div>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label>Delivery Address</label>
+                    <input
+                      type="text"
+                      placeholder="Enter your delivery address"
+                      value={orderData.deliveryAddress}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= MAX_ADDRESS_LENGTH) {
+                          setOrderData({ ...orderData, deliveryAddress: value });
+                        }
+                      }}
+                      required
+                      list="address-suggestions"
+                    />
+                    <datalist id="address-suggestions">
+                      {user?.address && <option value={user.address} />}
+                    </datalist>
+                    <span className="char-count">{orderData.deliveryAddress.length}/{MAX_ADDRESS_LENGTH}</span>
+                  </div>
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={orderData.phone}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= MAX_PHONE_LENGTH) {
+                          setOrderData({ ...orderData, phone: value });
+                        }
+                      }}
+                      required
+                    />
+                    <span className="char-count">{orderData.phone.length}/{MAX_PHONE_LENGTH}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {deliveryType === 'pickup' && (
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  value={orderData.phone}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value.length <= MAX_PHONE_LENGTH) {
+                      setOrderData({ ...orderData, phone: value });
+                    }
+                  }}
+                  required
+                />
+                <span className="char-count">{orderData.phone.length}/{MAX_PHONE_LENGTH}</span>
+              </div>
+            )}
+
             <div className="form-group">
               <label>Order Notes (Optional)</label>
               <textarea
@@ -293,12 +394,12 @@ const Cart = () => {
                     setOrderData({ ...orderData, notes: value });
                   }
                 }}
-                rows="3"
+                rows="2"
               />
               <span className="char-count">{orderData.notes.length}/{MAX_NOTES_LENGTH}</span>
             </div>
             <button type="submit" className="btn-place-order" disabled={loading}>
-              {loading ? 'Processing...' : 'Place Order'}
+              {loading ? 'Processing...' : `Place Order (${deliveryType === 'pickup' ? 'Pickup' : 'Delivery'})`}
             </button>
           </form>
         </div>

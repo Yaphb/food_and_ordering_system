@@ -5,9 +5,26 @@ const { auth, authorize } = require('../middleware/auth-mysql');
 
 router.post('/', auth, async (req, res) => {
   try {
-    const { items, deliveryAddress, phone, notes } = req.body;
+    const { items, deliveryType, deliveryAddress, pickupDateTime, phone, notes } = req.body;
 
-    const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Validate delivery type
+    if (deliveryType && !['pickup', 'delivery'].includes(deliveryType)) {
+      return res.status(400).json({ message: 'Invalid delivery type. Must be "pickup" or "delivery".' });
+    }
+
+    // Validate required fields based on delivery type
+    if (deliveryType === 'delivery' && !deliveryAddress) {
+      return res.status(400).json({ message: 'Delivery address is required for delivery orders.' });
+    }
+
+    if (deliveryType === 'pickup' && !pickupDateTime) {
+      return res.status(400).json({ message: 'Pickup date and time are required for pickup orders.' });
+    }
+
+    // Calculate total price (add delivery fee if delivery type)
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = deliveryType === 'delivery' ? 5 : 0;
+    const totalPrice = subtotal + deliveryFee;
 
     const orderItems = items.map(item => ({
       menuItemId: item.menuItem || item._id,
@@ -19,7 +36,9 @@ router.post('/', auth, async (req, res) => {
       userId: req.user.id,
       items: orderItems,
       totalPrice,
+      deliveryType: deliveryType || 'delivery',
       deliveryAddress,
+      pickupDateTime,
       phone,
       notes
     });

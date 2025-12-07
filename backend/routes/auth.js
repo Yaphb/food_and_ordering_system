@@ -24,6 +24,9 @@ router.post('/register', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        address: user.address,
+        profilePhoto: user.profilePhoto || '',
         themePreference: user.themePreference || 'light'
       }
     });
@@ -55,7 +58,10 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        themePreference: user.themePreference || 'light'
+        phone: user.phone,
+        address: user.address,
+        profilePhoto: user.profilePhoto || user.profile_photo || '',
+        themePreference: user.themePreference || user.theme_preference || 'light'
       }
     });
   } catch (error) {
@@ -84,9 +90,70 @@ router.put('/theme-preference', auth, async (req, res) => {
         name: updatedUser.name,
         email: updatedUser.email,
         role: updatedUser.role,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        profilePhoto: updatedUser.profilePhoto,
         themePreference: updatedUser.themePreference
       }
     });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { name, email, phone, address, profilePhoto } = req.body;
+
+    console.log('Profile update for user:', req.user.id);
+    console.log('Photo data received:', profilePhoto ? `${profilePhoto.length} chars` : 'none');
+
+    const updatedUser = await User.updateProfile(req.user.id, {
+      name,
+      email,
+      phone,
+      address,
+      profilePhoto
+    });
+    
+    console.log('Profile updated, photo in DB:', updatedUser.profilePhoto ? `${updatedUser.profilePhoto.length} chars` : 'none');
+    
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        profilePhoto: updatedUser.profilePhoto,
+        themePreference: updatedUser.themePreference
+      }
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.put('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await User.comparePassword(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    await User.updatePassword(req.user.id, newPassword);
+    
+    res.json({ message: 'Password changed successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

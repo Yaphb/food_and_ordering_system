@@ -26,16 +26,33 @@ class User {
     };
   }
 
+  static mapUser(dbUser) {
+    if (!dbUser) return null;
+    return {
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name,
+      password: dbUser.password,
+      role: dbUser.role,
+      phone: dbUser.phone,
+      address: dbUser.address,
+      profilePhoto: dbUser.profile_photo || '',
+      themePreference: dbUser.theme_preference || 'light',
+      createdAt: dbUser.created_at,
+      updatedAt: dbUser.updated_at
+    };
+  }
+
   static async findByEmail(email) {
     const sql = 'SELECT * FROM users WHERE email = ?';
     const results = await query(sql, [email.toLowerCase()]);
-    return results.length > 0 ? results[0] : null;
+    return results.length > 0 ? User.mapUser(results[0]) : null;
   }
 
   static async findById(id) {
     const sql = 'SELECT * FROM users WHERE id = ?';
     const results = await query(sql, [id]);
-    return results.length > 0 ? results[0] : null;
+    return results.length > 0 ? User.mapUser(results[0]) : null;
   }
 
   static async comparePassword(plainPassword, hashedPassword) {
@@ -45,7 +62,8 @@ class User {
   static async updateRole(id, role) {
     const sql = 'UPDATE users SET role = ?, updated_at = NOW() WHERE id = ?';
     await query(sql, [role, id]);
-    return await User.findById(id);
+    const user = await User.findById(id);
+    return user;
   }
 
   static async update(id, updates) {
@@ -60,7 +78,10 @@ class User {
       }
     });
 
-    if (fields.length === 0) return await User.findById(id);
+    if (fields.length === 0) {
+      const user = await User.findById(id);
+      return user;
+    }
 
     fields.push('updated_at = NOW()');
     values.push(id);
@@ -68,13 +89,38 @@ class User {
     const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
     await query(sql, values);
     
-    return await User.findById(id);
+    const user = await User.findById(id);
+    return user;
   }
 
   static async updateThemePreference(id, themePreference) {
     const sql = 'UPDATE users SET theme_preference = ?, updated_at = NOW() WHERE id = ?';
     await query(sql, [themePreference, id]);
-    return await User.findById(id);
+    const user = await User.findById(id);
+    return user;
+  }
+
+  static async updateProfile(id, profileData) {
+    const { name, email, phone, address, profilePhoto } = profileData;
+    
+    const sql = `
+      UPDATE users 
+      SET name = ?, email = ?, phone = ?, address = ?, profile_photo = ?, updated_at = NOW() 
+      WHERE id = ?
+    `;
+    
+    await query(sql, [name, email.toLowerCase(), phone || '', address || '', profilePhoto || '', id]);
+    const user = await User.findById(id);
+    return user;
+  }
+
+  static async updatePassword(id, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const sql = 'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?';
+    await query(sql, [hashedPassword, id]);
+    const user = await User.findById(id);
+    return user;
   }
 
   static async delete(id) {
@@ -84,7 +130,7 @@ class User {
   }
 
   static async findAll(filters = {}) {
-    let sql = 'SELECT id, email, name, role, phone, address, created_at FROM users WHERE 1=1';
+    let sql = 'SELECT id, email, name, role, phone, address, profile_photo, theme_preference, created_at FROM users WHERE 1=1';
     const params = [];
 
     if (filters.role) {
@@ -94,7 +140,8 @@ class User {
 
     sql += ' ORDER BY created_at DESC';
 
-    return await query(sql, params);
+    const results = await query(sql, params);
+    return results.map(user => User.mapUser(user));
   }
 }
 

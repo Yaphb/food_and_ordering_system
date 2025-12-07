@@ -100,6 +100,38 @@
   font-weight: 600;
 }
 
+/* Delivery Type Badges */
+.order-details .badge-pickup,
+.order-details .badge-delivery {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.order-details .badge-pickup svg,
+.order-details .badge-delivery svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.order-details .badge-pickup {
+  background-color: var(--color-gray-100);
+  color: var(--color-black);
+  border: 1px solid var(--color-gray-300);
+}
+
+.order-details .badge-delivery {
+  background-color: var(--color-gray-100);
+  color: var(--color-black);
+  border: 1px solid var(--color-gray-300);
+}
+
 .order-items {
   margin-bottom: 24px;
   padding: 20px;

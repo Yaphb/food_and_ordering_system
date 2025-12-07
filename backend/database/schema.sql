@@ -22,6 +22,7 @@ CREATE TABLE users (
     role ENUM('customer', 'staff', 'admin') DEFAULT 'customer',
     phone VARCHAR(50),
     address TEXT,
+    profile_photo LONGTEXT,
     theme_preference ENUM('light', 'dark', 'auto') DEFAULT 'light',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -50,7 +51,9 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     status ENUM('pending', 'preparing', 'ready', 'delivered', 'cancelled') DEFAULT 'pending',
-    delivery_address TEXT NOT NULL,
+    delivery_type ENUM('pickup', 'delivery') DEFAULT 'delivery',
+    delivery_address TEXT,
+    pickup_datetime DATETIME,
     phone VARCHAR(50) NOT NULL,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -58,6 +61,8 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_status (status),
+    INDEX idx_delivery_type (delivery_type),
+    INDEX idx_pickup_datetime (pickup_datetime),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

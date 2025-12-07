@@ -111,11 +111,43 @@ const StaffDashboard = () => {
                 <span className={`status-badge ${order.status}`}>{order.status}</span>
               </div>
             <div className="order-details">
+              <p>
+                <strong>Type:</strong>{' '}
+                {order.deliveryType === 'pickup' ? (
+                  <span className="badge-pickup">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                      <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    Pickup
+                  </span>
+                ) : (
+                  <span className="badge-delivery">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="1" y="3" width="15" height="13" />
+                      <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                      <circle cx="5.5" cy="18.5" r="2.5" />
+                      <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                    Delivery
+                  </span>
+                )}
+              </p>
               <p><strong>Customer:</strong> {order.user?.name || 'N/A'}</p>
               <p><strong>Phone:</strong> {order.phone || 'N/A'}</p>
-              <p><strong>Address:</strong> {order.deliveryAddress || 'N/A'}</p>
+              {order.deliveryType === 'delivery' ? (
+                <p><strong>Delivery Address:</strong> {order.deliveryAddress || 'N/A'}</p>
+              ) : (
+                <p><strong>Pickup Time:</strong> {order.pickupDateTime ? new Date(order.pickupDateTime).toLocaleString('en-MY', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'Not specified'}</p>
+              )}
               <p><strong>Total:</strong> RM{(order.totalPrice || 0).toFixed(2)}</p>
-              <p><strong>Time:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</p>
+              <p><strong>Order Time:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</p>
               {order.notes && (
                 <p><strong>Notes:</strong> {order.notes}</p>
               )}

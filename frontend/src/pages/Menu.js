@@ -109,12 +109,6 @@ const Menu = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
           />
-          {!searchQuery && (
-            <svg className="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 14L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          )}
           {searchQuery && (
             <button className="clear-search" onClick={() => setSearchQuery('')}>×</button>
           )}

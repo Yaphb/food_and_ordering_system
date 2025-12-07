@@ -22,18 +22,133 @@
   gap: 24px;
 }
 
+/* Profile Avatar Wrapper with Overlay */
+.profile-avatar-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .profile-avatar {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-black) 0%, var(--color-gray-700) 100%);
   color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+  overflow: hidden;
+  border: 4px solid var(--color-white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.profile-avatar-wrapper:hover .profile-avatar {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.avatar-loader {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Photo Overlay */
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.85) 100%);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeIn 0.2s ease-in forwards;
+  z-index: 3;
+}
+
+.overlay-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  transition: all var(--transition-fast);
+  letter-spacing: -0.01em;
+  border-radius: 8px;
+}
+
+.overlay-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.overlay-btn:hover {
+  transform: scale(1.08);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.overlay-btn:active {
+  transform: scale(0.98);
+}
+
+.remove-btn {
+  color: #ff6b6b;
+}
+
+.remove-btn:hover {
+  color: #ff5252;
+  background-color: rgba(255, 107, 107, 0.15);
 }
 
 .profile-info h1 {
@@ -137,6 +252,44 @@
 
 .profile-form textarea {
   resize: vertical;
+}
+
+/* Password Input Wrapper for Profile */
+.profile-form .password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.profile-form .password-input-wrapper input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.profile-form .password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-500);
+  transition: all var(--transition-fast);
+  border-radius: 6px;
+}
+
+.profile-form .password-toggle:hover {
+  color: var(--color-black);
+  background-color: var(--color-gray-100);
+}
+
+.profile-form .password-toggle svg {
+  width: 20px;
+  height: 20px;
 }
 
 .btn-save {

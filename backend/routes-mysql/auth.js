@@ -26,6 +26,7 @@ router.post('/register', async (req, res) => {
         role: user.role,
         phone: user.phone,
         address: user.address,
+        profilePhoto: user.profilePhoto || '',
         themePreference: user.themePreference || 'light'
       }
     });
@@ -59,6 +60,7 @@ router.post('/login', async (req, res) => {
         role: user.role,
         phone: user.phone,
         address: user.address,
+        profilePhoto: user.profilePhoto || user.profile_photo || '',
         themePreference: user.theme_preference || 'light'
       }
     });
@@ -73,18 +75,36 @@ router.get('/me', auth, async (req, res) => {
 
 router.put('/profile', auth, async (req, res) => {
   try {
-    const { name, phone, address } = req.body;
-    const updatedUser = await User.update(req.user.id, { name, phone, address });
-    
-    const { password, ...userWithoutPassword } = updatedUser;
+    const { name, email, phone, address, profilePhoto } = req.body;
+
+    console.log('Profile update for user:', req.user.id);
+    console.log('Photo data received:', profilePhoto ? `${profilePhoto.length} chars` : 'none');
+
+    const updatedUser = await User.updateProfile(req.user.id, {
+      name,
+      email: email || req.user.email,
+      phone,
+      address,
+      profilePhoto
+    });
+
+    console.log('Profile updated, photo in DB:', updatedUser.profilePhoto ? `${updatedUser.profilePhoto.length} chars` : 'none');
+
     res.json({
       message: 'Profile updated successfully',
       user: {
-        ...userWithoutPassword,
-        themePreference: userWithoutPassword.theme_preference
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        profilePhoto: updatedUser.profilePhoto,
+        themePreference: updatedUser.themePreference
       }
     });
   } catch (error) {
+    console.error('Profile update error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -92,20 +112,20 @@ router.put('/profile', auth, async (req, res) => {
 router.put('/change-password', auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    
+
     const user = await User.findById(req.user.id);
     const isMatch = await User.comparePassword(currentPassword, user.password);
-    
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
-    
+
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const { query } = require('../config/mysql');
-    
+
     await query('UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?', [hashedPassword, req.user.id]);
-    
+
     res.json({ message: 'Password changed successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -115,13 +135,13 @@ router.put('/change-password', auth, async (req, res) => {
 router.put('/theme-preference', auth, async (req, res) => {
   try {
     const { themePreference } = req.body;
-    
+
     if (!['light', 'dark', 'auto'].includes(themePreference)) {
       return res.status(400).json({ message: 'Invalid theme preference' });
     }
 
     const updatedUser = await User.updateThemePreference(req.user.id, themePreference);
-    
+
     res.json({
       message: 'Theme preference updated',
       user: {

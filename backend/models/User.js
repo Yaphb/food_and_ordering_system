@@ -104,6 +104,49 @@ class User {
     const result = await dynamoDB.update(params).promise();
     return result.Attributes;
   }
+
+  static async updateProfile(id, profileData) {
+    const { name, email, phone, address, profilePhoto } = profileData;
+    
+    const params = {
+      TableName: TABLE_NAME,
+      Key: { id },
+      UpdateExpression: 'SET #name = :name, email = :email, phone = :phone, address = :address, profilePhoto = :profilePhoto, updatedAt = :updatedAt',
+      ExpressionAttributeNames: {
+        '#name': 'name'
+      },
+      ExpressionAttributeValues: {
+        ':name': name,
+        ':email': email.toLowerCase(),
+        ':phone': phone || '',
+        ':address': address || '',
+        ':profilePhoto': profilePhoto || '',
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    const result = await dynamoDB.update(params).promise();
+    return result.Attributes;
+  }
+
+  static async updatePassword(id, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const params = {
+      TableName: TABLE_NAME,
+      Key: { id },
+      UpdateExpression: 'SET password = :password, updatedAt = :updatedAt',
+      ExpressionAttributeValues: {
+        ':password': hashedPassword,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    const result = await dynamoDB.update(params).promise();
+    return result.Attributes;
+  }
 }
 
 module.exports = User;

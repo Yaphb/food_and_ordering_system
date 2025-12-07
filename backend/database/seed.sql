@@ -45,26 +45,31 @@ INSERT INTO menu_items (name, description, price, category, image, available) VA
 ('Smoothie', 'Mixed berry smoothie', 30.00, 'beverage', 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400', TRUE);
 
 -- Insert sample orders (using user IDs 3 and 4 - the customers)
-INSERT INTO orders (user_id, total_price, status, delivery_address, phone, notes) VALUES
-(3, 195.00, 'delivered', '789 Customer Lane, City, State 12345', '555-0003', 'Please ring doorbell'),
-(4, 143.50, 'preparing', '321 Buyer Boulevard, City, State 12345', '555-0004', 'Leave at door'),
-(3, 122.00, 'pending', '789 Customer Lane, City, State 12345', '555-0003', NULL);
+-- Mix of delivery and pickup orders
+INSERT INTO orders (user_id, total_price, status, delivery_type, delivery_address, pickup_datetime, phone, notes) VALUES
+(3, 195.00, 'delivered', 'delivery', '789 Customer Lane, City, State 12345', NULL, '555-0003', 'Please ring doorbell'),
+(4, 138.50, 'preparing', 'pickup', NULL, '2025-12-10 14:00:00', '555-0004', 'Will pick up at 2 PM'),
+(3, 122.00, 'pending', 'delivery', '789 Customer Lane, City, State 12345', NULL, '555-0003', NULL),
+(4, 85.00, 'ready', 'pickup', NULL, '2025-12-08 12:30:00', '555-0004', 'Pickup for lunch');
 
--- Insert order items (using menu item IDs 1-15 and order IDs 1-3)
+-- Insert order items (using menu item IDs 1-15 and order IDs 1-4)
 INSERT INTO order_items (order_id, menu_item_id, quantity, price) VALUES
--- Order 1 items
+-- Order 1 items (Delivery - includes RM5 delivery fee in total)
 (1, 5, 2, 68.00),  -- 2x Beef Burger
 (1, 9, 1, 34.00),  -- 1x Chocolate Cake
 (1, 13, 2, 25.00),  -- 2x Iced Coffee
 
--- Order 2 items
+-- Order 2 items (Pickup - no delivery fee)
 (2, 6, 1, 80.00),  -- 1x Margherita Pizza
 (2, 12, 2, 21.00),  -- 2x Orange Juice
 (2, 1, 1, 38.50),   -- 1x Caesar Salad
 
--- Order 3 items
+-- Order 3 items (Delivery - includes RM5 delivery fee in total)
 (3, 4, 1, 105.00),  -- 1x Grilled Salmon
-(3, 14, 1, 17.00);  -- 1x Lemonade
+(3, 14, 1, 17.00),  -- 1x Lemonade
+
+-- Order 4 items (Pickup - no delivery fee)
+(4, 8, 1, 85.00);  -- 1x Chicken Teriyaki
 
 -- Display summary
 SELECT 'Database seeded successfully!' as message;

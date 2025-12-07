@@ -6,6 +6,13 @@ import './Orders.css';
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Search, Filter, and Pagination states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 3;
 
   useEffect(() => {
     fetchOrders();
@@ -33,6 +40,41 @@ const Orders = () => {
     return colors[status] || '#666';
   };
 
+  // Filter and search logic
+  const filteredOrders = orders.filter(order => {
+    const orderId = (order.id || order._id)?.toString() || '';
+    const address = order.deliveryAddress?.toLowerCase() || '';
+    const phone = order.phone?.toLowerCase() || '';
+    const notes = order.notes?.toLowerCase() || '';
+    
+    // Search through order items (food names)
+    const itemNames = order.items?.map(item => 
+      item.menuItem?.name?.toLowerCase() || ''
+    ).join(' ') || '';
+    
+    const search = searchTerm.toLowerCase();
+    
+    const matchesSearch = orderId.includes(search) ||
+                         address.includes(search) ||
+                         phone.includes(search) ||
+                         notes.includes(search) ||
+                         itemNames.includes(search);
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    const matchesType = filterType === 'all' || order.deliveryType === filterType;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const startIndex = (currentPage - 1) * ordersPerPage;
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ordersPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterType]);
+
   if (loading) return <div className="loading">Loading orders...</div>;
 
   if (orders.length === 0) {
@@ -47,8 +89,69 @@ const Orders = () => {
   return (
     <div className="orders-container">
       <h2>Order History</h2>
-      <div className="orders-list">
-        {orders.map(order => (
+      
+      <div className="orders-filters">
+        <div className="search-wrapper">
+          <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by order ID, food items, address, phone, or notes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button 
+              onClick={() => setSearchTerm('')} 
+              className="clear-search"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        
+        <div className="filter-group">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Preparing</option>
+            <option value="ready">Ready</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Types</option>
+            <option value="pickup">Pickup</option>
+            <option value="delivery">Delivery</option>
+          </select>
+        </div>
+      </div>
+
+      {filteredOrders.length === 0 ? (
+        <div className="no-orders">
+          <p>No orders found matching your criteria.</p>
+        </div>
+      ) : (
+        <>
+          <div className="orders-count">
+            Showing {paginatedOrders.length} of {filteredOrders.length} orders
+          </div>
+          
+          <div className="orders-list">
+            {paginatedOrders.map(order => (
           <div key={order.id || order._id} className="order-card">
             <div className="order-header">
               <div className="order-info">
@@ -74,7 +177,38 @@ const Orders = () => {
             </div>
             <div className="order-footer">
               <div className="order-details">
-                <div><strong>Delivery Address:</strong> {order.deliveryAddress}</div>
+                <div className="delivery-type-badge">
+                  {order.deliveryType === 'pickup' ? (
+                    <span className="badge-pickup">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                      </svg>
+                      Pickup
+                    </span>
+                  ) : (
+                    <span className="badge-delivery">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                      </svg>
+                      Delivery
+                    </span>
+                  )}
+                </div>
+                {order.deliveryType === 'delivery' ? (
+                  <div><strong>Delivery Address:</strong> {order.deliveryAddress}</div>
+                ) : (
+                  <div><strong>Pickup Time:</strong> {order.pickupDateTime ? new Date(order.pickupDateTime).toLocaleString('en-MY', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'Not specified'}</div>
+                )}
                 <div><strong>Contact:</strong> {order.phone}</div>
                 {order.notes && (
                   <div><strong>Notes:</strong> {order.notes}</div>
@@ -85,8 +219,32 @@ const Orders = () => {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="orders-pagination">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                ← Previous
+              </button>
+              <span className="pagination-info">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="pagination-btn"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

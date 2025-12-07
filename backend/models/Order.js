@@ -11,7 +11,9 @@ class Order {
       items: orderData.items,
       totalPrice: parseFloat(orderData.totalPrice),
       status: 'pending',
-      deliveryAddress: orderData.deliveryAddress,
+      deliveryType: orderData.deliveryType || 'delivery', // 'pickup' or 'delivery'
+      deliveryAddress: orderData.deliveryAddress || '',
+      pickupDateTime: orderData.pickupDateTime || '',
       phone: orderData.phone,
       notes: orderData.notes || '',
       createdAt: new Date().toISOString(),
