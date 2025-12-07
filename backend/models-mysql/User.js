@@ -9,8 +9,8 @@ class User {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const sql = `
-      INSERT INTO users (email, name, password, role, phone, address)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (email, name, password, role, phone, address, theme_preference)
+      VALUES (?, ?, ?, ?, ?, ?, 'light')
     `;
     
     const result = await query(sql, [email.toLowerCase(), name, hashedPassword, role, phone || '', address || '']);
@@ -21,7 +21,8 @@ class User {
       name,
       role,
       phone: phone || '',
-      address: address || ''
+      address: address || '',
+      themePreference: 'light'
     };
   }
 
@@ -67,6 +68,12 @@ class User {
     const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
     await query(sql, values);
     
+    return await User.findById(id);
+  }
+
+  static async updateThemePreference(id, themePreference) {
+    const sql = 'UPDATE users SET theme_preference = ?, updated_at = NOW() WHERE id = ?';
+    await query(sql, [themePreference, id]);
     return await User.findById(id);
   }
 

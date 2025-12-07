@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
+import { ToastContext } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './Menu.css';
 
@@ -16,6 +17,7 @@ const Menu = () => {
   const itemsPerPage = 6;
   const { addToCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
+  const { showToast } = useContext(ToastContext);
 
   useEffect(() => {
     fetchMenu();
@@ -59,13 +61,31 @@ const Menu = () => {
   };
 
   const closeOverlay = () => {
-    setSelectedItem(null);
-    document.body.style.overflow = '';
+    const overlay = document.querySelector('.food-overlay');
+    const content = document.querySelector('.food-overlay-content');
+    if (overlay && content) {
+      overlay.classList.add('overlay-exit');
+      content.classList.add('content-exit');
+      setTimeout(() => {
+        setSelectedItem(null);
+        document.body.style.overflow = '';
+      }, 400);
+    } else {
+      setSelectedItem(null);
+      document.body.style.overflow = '';
+    }
   };
 
   const handleAddToCart = (item) => {
     addToCart(item);
+    showToast(`${item.name} added to cart!`, 'success');
     closeOverlay();
+  };
+
+  const handleQuickAdd = (e, item) => {
+    e.stopPropagation();
+    addToCart(item);
+    showToast(`${item.name} added to cart!`, 'success');
   };
 
   useEffect(() => {
@@ -124,10 +144,7 @@ const Menu = () => {
                   <span className="price">RM{(parseFloat(item.price) || 0).toFixed(2)}</span>
                   {user && user.role === 'customer' && (
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(item);
-                      }} 
+                      onClick={(e) => handleQuickAdd(e, item)} 
                       className="btn-add"
                     >
                       Add to Cart

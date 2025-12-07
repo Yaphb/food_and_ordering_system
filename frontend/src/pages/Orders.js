@@ -76,6 +76,9 @@ const Orders = () => {
               <div className="order-details">
                 <div><strong>Delivery Address:</strong> {order.deliveryAddress}</div>
                 <div><strong>Contact:</strong> {order.phone}</div>
+                {order.notes && (
+                  <div><strong>Notes:</strong> {order.notes}</div>
+                )}
               </div>
               <div className="order-total">
                 <strong>Total:</strong> <span className="total-amount">RM{parseFloat(order.totalPrice).toFixed(2)}</span>

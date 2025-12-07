@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ToastContext } from '../context/ToastContext';
 import './Auth.css';
 
 const Register = () => {
@@ -13,6 +14,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const { register } = useContext(AuthContext);
+  const { showToast } = useContext(ToastContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -20,9 +22,12 @@ const Register = () => {
     setError('');
     try {
       await register(formData);
-      navigate('/menu');
+      showToast('Registration successful! Welcome 🎉', 'success');
+      setTimeout(() => navigate('/menu'), 500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const errorMsg = err.response?.data?.message || 'Registration failed';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     }
   };
 

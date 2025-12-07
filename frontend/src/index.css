@@ -1,5 +1,6 @@
 /* Apple-inspired minimalist design system */
-:root {
+:root,
+[data-theme="light"] {
   --color-black: #000000;
   --color-white: #ffffff;
   --color-gray-50: #fafafa;
@@ -13,6 +14,12 @@
   --color-gray-800: #262626;
   --color-gray-900: #171717;
   
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --text-primary: #000000;
+  --text-secondary: #525252;
+  --border-color: #e5e5e5;
+  
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -21,6 +28,62 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-black: #ffffff;
+  --color-white: #0a0a0a;
+  --color-gray-50: #1a1a1a;
+  --color-gray-100: #262626;
+  --color-gray-200: #2e2e2e;
+  --color-gray-300: #3a3a3a;
+  --color-gray-400: #6b6b6b;
+  --color-gray-500: #8b8b8b;
+  --color-gray-600: #a8a8a8;
+  --color-gray-700: #c4c4c4;
+  --color-gray-800: #e0e0e0;
+  --color-gray-900: #f5f5f5;
+  
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #a8a8a8;
+  --border-color: #2e2e2e;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+/* Auto Theme - follows system preference */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --color-black: #ffffff;
+    --color-white: #0a0a0a;
+    --color-gray-50: #1a1a1a;
+    --color-gray-100: #262626;
+    --color-gray-200: #2e2e2e;
+    --color-gray-300: #3a3a3a;
+    --color-gray-400: #6b6b6b;
+    --color-gray-500: #8b8b8b;
+    --color-gray-600: #a8a8a8;
+    --color-gray-700: #c4c4c4;
+    --color-gray-800: #e0e0e0;
+    --color-gray-900: #f5f5f5;
+    
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #a8a8a8;
+    --border-color: #2e2e2e;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  }
 }
 
 * {

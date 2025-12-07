@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { ToastContext } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './AdminDashboard.css';
 
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
   const [filterAvailability, setFilterAvailability] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const { showToast } = useContext(ToastContext);
 
   useEffect(() => {
     fetchMenuItems();
@@ -47,13 +49,15 @@ const AdminDashboard = () => {
       const itemId = editingItem?.id || editingItem?._id;
       if (editingItem) {
         await axios.put(`${API_URL}/api/menu/${itemId}`, formData);
+        showToast('Menu item updated successfully!', 'success');
       } else {
         await axios.post(`${API_URL}/api/menu`, formData);
+        showToast('Menu item created successfully!', 'success');
       }
       fetchMenuItems();
       resetForm();
     } catch (error) {
-      alert('Error saving menu item: ' + (error.response?.data?.message || error.message));
+      showToast('Error saving menu item: ' + (error.response?.data?.message || error.message), 'error');
     }
   };
 
@@ -70,9 +74,10 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
         await axios.delete(`${API_URL}/api/menu/${id}`);
+        showToast('Menu item deleted successfully', 'info');
         fetchMenuItems();
       } catch (error) {
-        alert('Error deleting item: ' + (error.response?.data?.message || error.message));
+        showToast('Error deleting item: ' + (error.response?.data?.message || error.message), 'error');
       }
     }
   };

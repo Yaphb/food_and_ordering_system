@@ -13,11 +13,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- Insert sample users
 -- Password for all users: "123456" (hashed with bcrypt)
-INSERT INTO users (email, name, password, role, phone, address) VALUES
-('admin@gmail.com', 'Admin User', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'admin', '555-0001', '123 Admin Street, City, State 12345'),
-('staff@gmail.com', 'Staff Member', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'staff', '555-0002', '456 Staff Avenue, City, State 12345'),
-('johndoe@gmail.com', 'John Doe', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'customer', '555-0003', '789 Customer Lane, City, State 12345'),
-('janesmith@gmail.com', 'Jane Smith', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'customer', '555-0004', '321 Buyer Boulevard, City, State 12345');
+INSERT INTO users (email, name, password, role, phone, address, theme_preference) VALUES
+('admin@gmail.com', 'Admin User', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'admin', '555-0001', '123 Admin Street, City, State 12345', 'light'),
+('staff@gmail.com', 'Staff Member', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'staff', '555-0002', '456 Staff Avenue, City, State 12345', 'light'),
+('johndoe@gmail.com', 'John Doe', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'customer', '555-0003', '789 Customer Lane, City, State 12345', 'light'),
+('janesmith@gmail.com', 'Jane Smith', '$2b$10$K4sbr.W0RKjmpN6B05uSAe.O0q9vkQDQKRqH52KE7qnrqduYJDAVS', 'customer', '555-0004', '321 Buyer Boulevard, City, State 12345', 'light');
 
 -- Insert sample menu items (Prices in Malaysian Ringgit - RM)
 INSERT INTO menu_items (name, description, price, category, image, available) VALUES

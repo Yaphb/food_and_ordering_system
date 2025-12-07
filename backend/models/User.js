@@ -19,6 +19,7 @@ class User {
       role,
       phone: phone || '',
       address: address || '',
+      themePreference: 'light', // Default theme preference
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -79,6 +80,22 @@ class User {
       },
       ExpressionAttributeValues: {
         ':role': role,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    const result = await dynamoDB.update(params).promise();
+    return result.Attributes;
+  }
+
+  static async updateThemePreference(id, themePreference) {
+    const params = {
+      TableName: TABLE_NAME,
+      Key: { id },
+      UpdateExpression: 'SET themePreference = :themePreference, updatedAt = :updatedAt',
+      ExpressionAttributeValues: {
+        ':themePreference': themePreference,
         ':updatedAt': new Date().toISOString()
       },
       ReturnValues: 'ALL_NEW'

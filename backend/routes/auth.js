@@ -23,7 +23,8 @@ router.post('/register', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        themePreference: user.themePreference || 'light'
       }
     });
   } catch (error) {
@@ -53,7 +54,8 @@ router.post('/login', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        themePreference: user.themePreference || 'light'
       }
     });
   } catch (error) {
@@ -63,6 +65,31 @@ router.post('/login', async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   res.json({ user: req.user });
+});
+
+router.put('/theme-preference', auth, async (req, res) => {
+  try {
+    const { themePreference } = req.body;
+    
+    if (!['light', 'dark', 'auto'].includes(themePreference)) {
+      return res.status(400).json({ message: 'Invalid theme preference' });
+    }
+
+    const updatedUser = await User.updateThemePreference(req.user.id, themePreference);
+    
+    res.json({
+      message: 'Theme preference updated',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        themePreference: updatedUser.themePreference
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 });
 
 module.exports = router;

@@ -17,6 +17,8 @@ Minimalist designation food ordering system.
 - Admin dashboard (manage menu & orders)
 - Staff dashboard (update order status)
 - Responsive design
+- Smart theme system (auto/light/dark modes)
+- Persistent cart across sessions
 
 ## Quick Start (Windows)
 
@@ -27,6 +29,8 @@ Double-click `startup.bat` and choose:
 3. **Stop** - Stop all processes
 4. **Info** - View system status
 5. **Reset Database** - Clear and reseed data
+
+
 
 ## Manual Setup
 
@@ -64,6 +68,25 @@ After database seeding:
 **Auth:** `/api/auth/register`, `/api/auth/login`  
 **Menu:** `/api/menu` (GET, POST, PUT, DELETE)  
 **Orders:** `/api/orders` (GET, POST), `/api/orders/:id/status` (PUT)
+
+## Theme System
+
+**Non-Logged-In Users:**
+- Automatic theme based on Malaysia time (UTC+8)
+- Dark mode: 6 PM - 6 AM
+- Light mode: 6 AM - 6 PM
+- Updates automatically every minute
+
+**Logged-In Users:**
+- Choose from Light, Dark, or Auto themes
+- Preferences saved to user account (server-side)
+- Access via Profile → Preferences
+- Theme syncs across all devices
+
+**On Logout:**
+- Theme preference is retained in localStorage
+- When logging back in, saved theme is automatically restored
+- Cart and order history are also retained
 
 ## License
 

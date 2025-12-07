@@ -23,7 +23,10 @@ router.post('/register', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        themePreference: user.themePreference || 'light'
       }
     });
   } catch (error) {
@@ -53,7 +56,10 @@ router.post('/login', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        themePreference: user.theme_preference || 'light'
       }
     });
   } catch (error) {
@@ -63,6 +69,74 @@ router.post('/login', async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   res.json({ user: req.user });
+});
+
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { name, phone, address } = req.body;
+    const updatedUser = await User.update(req.user.id, { name, phone, address });
+    
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        ...userWithoutPassword,
+        themePreference: userWithoutPassword.theme_preference
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.put('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    const isMatch = await User.comparePassword(currentPassword, user.password);
+    
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+    
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const { query } = require('../config/mysql');
+    
+    await query('UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?', [hashedPassword, req.user.id]);
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.put('/theme-preference', auth, async (req, res) => {
+  try {
+    const { themePreference } = req.body;
+    
+    if (!['light', 'dark', 'auto'].includes(themePreference)) {
+      return res.status(400).json({ message: 'Invalid theme preference' });
+    }
+
+    const updatedUser = await User.updateThemePreference(req.user.id, themePreference);
+    
+    res.json({
+      message: 'Theme preference updated',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        themePreference: updatedUser.theme_preference
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 });
 
 module.exports = router;

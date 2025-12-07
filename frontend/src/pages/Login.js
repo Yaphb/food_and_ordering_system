@@ -1,12 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ToastContext } from '../context/ToastContext';
 import './Auth.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
+  const { showToast } = useContext(ToastContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,9 +16,12 @@ const Login = () => {
     setError('');
     try {
       await login(formData.email, formData.password);
-      navigate('/menu');
+      showToast('Login successful! Welcome back 👋', 'success');
+      setTimeout(() => navigate('/menu'), 500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const errorMsg = err.response?.data?.message || 'Login failed';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     }
   };
 

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { ToastContext } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './StaffDashboard.css';
 
@@ -12,6 +13,7 @@ const StaffDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
+  const { showToast } = useContext(ToastContext);
 
   useEffect(() => {
     fetchOrders();
@@ -33,9 +35,10 @@ const StaffDashboard = () => {
   const updateOrderStatus = async (orderId, status) => {
     try {
       await axios.patch(`${API_URL}/api/orders/${orderId}/status`, { status });
+      showToast(`Order status updated to ${status}`, 'success');
       fetchOrders();
     } catch (error) {
-      alert('Failed to update order status');
+      showToast('Failed to update order status', 'error');
     }
   };
 
@@ -113,6 +116,9 @@ const StaffDashboard = () => {
               <p><strong>Address:</strong> {order.deliveryAddress || 'N/A'}</p>
               <p><strong>Total:</strong> RM{(order.totalPrice || 0).toFixed(2)}</p>
               <p><strong>Time:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</p>
+              {order.notes && (
+                <p><strong>Notes:</strong> {order.notes}</p>
+              )}
             </div>
             <div className="order-items">
               <strong>Items:</strong>

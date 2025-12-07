@@ -18,17 +18,24 @@ const Home = () => {
       
       <div className="features">
         <div className="feature">
-          <div className="feature-icon">🍕</div>
+          <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <h3>Fresh Food</h3>
           <p>Made with the finest ingredients</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">🚀</div>
+          <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <h3>Fast Delivery</h3>
           <p>Quick and reliable service</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">💳</div>
+          <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="2" y="5" width="20" height="14" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 10h20" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <h3>Easy Payment</h3>
           <p>Secure checkout process</p>
         </div>

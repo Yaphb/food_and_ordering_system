@@ -105,7 +105,18 @@
   gap: 12px;
   margin-bottom: 64px;
   flex-wrap: wrap;
-  animation: slideDown 0.6s ease-out 0.1s both;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .filter-buttons button {
@@ -347,12 +358,35 @@
   transform: none;
 }
 
+[data-theme="dark"] .food-overlay {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .food-overlay {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
+  }
+}
+
+.food-overlay.overlay-exit {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -373,6 +407,20 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="dark"] .food-overlay-content {
+  background: rgba(26, 26, 26, 0.98);
+  border: 1px solid rgba(58, 58, 58, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .food-overlay-content {
+    background: rgba(26, 26, 26, 0.98);
+    border: 1px solid rgba(58, 58, 58, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -384,13 +432,32 @@
   }
 }
 
+.food-overlay-content.content-exit {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.9);
+  }
+}
+
 .close-btn {
   position: absolute;
   top: 16px;
   right: 16px;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
-  color: var(--color-white);
+  color: #ffffff;
   border: none;
   width: 40px;
   height: 40px;
@@ -411,6 +478,26 @@
   transform: rotate(90deg);
 }
 
+[data-theme="dark"] .close-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000000;
+}
+
+[data-theme="dark"] .close-btn:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .close-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000000;
+  }
+  
+  [data-theme="auto"] .close-btn:hover {
+    background: rgba(255, 255, 255, 1);
+  }
+}
+
 .overlay-image {
   width: 100%;
   height: 320px;
@@ -425,12 +512,18 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.food-overlay-content:hover .overlay-image img {
+  transform: scale(1.05);
 }
 
 .overlay-details {
   padding: 32px;
   overflow-y: auto;
   flex: 1;
+  transition: all var(--transition-base);
 }
 
 .overlay-details h2 {
@@ -440,19 +533,30 @@
   margin-bottom: 12px;
   letter-spacing: -0.03em;
   line-height: 1.2;
+  transition: all var(--transition-fast);
+}
+
+.food-overlay-content:hover .overlay-details h2 {
+  transform: translateX(4px);
 }
 
 .overlay-category {
   display: inline-block;
   background-color: var(--color-gray-100);
-  color: var(--color-gray-700);
+  color: var(--color-black);
   padding: 6px 16px;
   border-radius: 980px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: capitalize;
   margin-bottom: 20px;
   letter-spacing: -0.01em;
+  transition: all var(--transition-fast);
+}
+
+.overlay-category:hover {
+  background-color: var(--color-gray-200);
+  transform: scale(1.05);
 }
 
 .overlay-description {
@@ -489,17 +593,37 @@
   font-size: 1rem;
   letter-spacing: -0.01em;
   transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-add-overlay::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-add-overlay:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-add-overlay:hover {
   background-color: var(--color-gray-800);
   border-color: var(--color-gray-800);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: var(--shadow-lg);
 }
 
 .btn-add-overlay:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 /* Responsive */
