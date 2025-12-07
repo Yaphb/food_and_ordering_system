@@ -1,6 +1,6 @@
-# Food Ordering System
+# FoodOrder System
 
-Minimalist designation food ordering system.
+A minimalist, Apple-inspired food ordering system with role-based access control.
 
 ## Tech Stack
 
@@ -43,31 +43,65 @@ For detailed instructions:
 
 After database seeding:
 
-- **Admin:** admin@foodorder.com / admin123
-- **Staff:** staff@foodorder.com / staff123
-- **Customer:** customer@foodorder.com / customer123
+- **Admin:** admin@gmail.com / 123456
+- **Staff:** staff@gmail.com / 123456
+- **Customer 1:** johndoe@gmail.com / 123456
+- **Customer 2:** janesmith@gmail.com / 123456
 
 ## Project Structure
 
 ```
-├── frontend/          # React app
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       └── context/
-├── backend/           # Node.js API
-│   ├── routes/
-│   ├── models/
-│   ├── middleware/
-│   └── database/
-└── docs/             # Setup guides
+food_and_ordering_system/
+├── frontend/                 # React application
+│   ├── public/              # Static files
+│   ├── src/
+│   │   ├── components/      # Reusable components (Navbar, Toast, etc.)
+│   │   ├── pages/           # Page components (Home, Menu, Cart, etc.)
+│   │   ├── context/         # React Context (Auth, Cart, Toast)
+│   │   ├── App.js           # Main app component
+│   │   └── index.js         # Entry point
+│   ├── package.json
+│   └── .env                 # Frontend environment variables
+│
+├── backend/                 # Node.js API server
+│   ├── config/              # Database configuration
+│   ├── database/            # SQL schema and seed files
+│   ├── middleware/          # Auth middleware
+│   ├── models/              # Data models (User, MenuItem, Order)
+│   ├── models-mysql/        # MySQL-specific models
+│   ├── routes/              # API routes (DynamoDB)
+│   ├── routes-mysql/        # API routes (MySQL)
+│   ├── index.js             # Server entry point
+│   ├── package.json
+│   └── .env                 # Backend environment variables
+│
+├── startup.bat              # Windows startup script
+├── README.md                # This file
+├── XAMPP_SETUP.md          # Local development guide
+└── AWS_SETUP.md            # Cloud deployment guide
 ```
 
 ## API Endpoints
 
-**Auth:** `/api/auth/register`, `/api/auth/login`  
-**Menu:** `/api/menu` (GET, POST, PUT, DELETE)  
-**Orders:** `/api/orders` (GET, POST), `/api/orders/:id/status` (PUT)
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
+- `PUT /api/auth/profile` - Update user profile
+- `PUT /api/auth/change-password` - Change password
+- `PUT /api/auth/theme-preference` - Update theme preference
+
+### Menu
+- `GET /api/menu` - Get all menu items
+- `POST /api/menu` - Create menu item (Admin)
+- `PUT /api/menu/:id` - Update menu item (Admin)
+- `DELETE /api/menu/:id` - Delete menu item (Admin)
+
+### Orders
+- `GET /api/orders` - Get user orders
+- `POST /api/orders` - Create new order
+- `GET /api/orders/all` - Get all orders (Staff/Admin)
+- `PUT /api/orders/:id/status` - Update order status (Staff/Admin)
 
 ## Theme System
 
