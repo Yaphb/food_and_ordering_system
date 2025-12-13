@@ -1,5 +1,5 @@
 # Complete AWS Deployment Guide
-**React.js + Node.js Food Ordering System**
+**React.js + Node.js Food Ordering System with RDS + DBeaver**
 
 ## 💰 Cost Overview (Under $50 Budget)
 - **EC2 t2.micro**: FREE (750 hours/month for 12 months)
@@ -11,12 +11,13 @@
 ## 📋 Pre-Deployment Checklist
 - [ ] AWS Account created and verified
 - [ ] Billing alerts set ($10, $25, $40)
+- [ ] DBeaver installed on your local machine
 - [ ] Project tested locally
 - [ ] Environment files ready
 
 ---
 
-## 🗄️ Phase 1: RDS Database Setup (10 minutes)
+## 🗄️ Phase 1: RDS Database Setup (15 minutes)
 
 ### Step 1: Create RDS Instance
 **AWS Console → RDS → Create Database**
@@ -25,12 +26,14 @@ Engine: MySQL 8.0.35
 Template: Free tier ✓
 DB instance identifier: food-ordering-db
 Master username: admin
-Master password: FoodOrder2024!SecurePass
+Master password: FoodOrder2024!
 DB instance class: db.t2.micro ✓
 Storage: 20 GB (free tier limit)
-Public access: YES ✓ (for DBeaver)
-Initial database name: food_ordering
+Public access: YES ✓ (CRITICAL for DBeaver access)
+Initial database name: [LEAVE EMPTY] ✅
 ```
+
+**⚠️ Important:** Leave "Initial database name" empty - we'll create it via DBeaver
 
 ### Step 2: Configure Security Group
 **Create new security group: `food-ordering-rds-sg`**
@@ -38,17 +41,76 @@ Initial database name: food_ordering
 Inbound Rules:
 - Type: MySQL/Aurora
 - Port: 3306
-- Source: 0.0.0.0/0 (for initial setup)
+- Source: 0.0.0.0/0 (for DBeaver access)
+- Description: Allow DBeaver and EC2 access
 ```
 
-### Step 3: Save RDS Information
-```
-Endpoint: food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com
-Port: 3306
-Username: admin
-Password: FoodOrder2024!
-Database: food_ordering
-```
+### Step 3: Wait for RDS Instance
+- **Status must be "Available"** before proceeding
+- **Copy the endpoint** when ready: `food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com`
+
+### Step 4: DBeaver Database Setup
+
+#### 4.1: Connect to RDS Server
+1. **Open DBeaver**
+2. **New Database Connection** → **MySQL**
+3. **Connection Settings:**
+   ```
+   Server Host: food-ordering-db.cjmqw882g6hb.us-east-1.rds.amazonaws.com
+   Port: 3306
+   Database: [LEAVE EMPTY] ✅
+   Username: admin
+   Password: FoodOrder2024!
+   ```
+4. **Test Connection** → Should show "Connected" ✅
+5. **Finish** to save connection
+
+#### 4.2: Create Database
+1. **Right-click connection** → **SQL Editor**
+2. **Execute this command:**
+   ```sql
+   CREATE DATABASE food_ordering CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+3. **Verify creation:**
+   ```sql
+   SHOW DATABASES;
+   ```
+   You should see `food_ordering` in the list
+
+#### 4.3: Update Connection to Use Database
+1. **Right-click connection** → **Edit Connection**
+2. **Update Database field:**
+   ```
+   Database: food_ordering ✅
+   ```
+3. **Test Connection** → Should connect to specific database
+4. **Save changes**
+
+#### 4.4: Import Database Schema
+1. **Right-click connection** → **SQL Editor**
+2. **Open SQL Script** → Navigate to `backend/database/schema-dbeaver.sql` ✅
+3. **Execute script** (Ctrl+Enter) - No editing needed!
+4. **Verify tables created:**
+   ```sql
+   SHOW TABLES;
+   ```
+   Should show: `users`, `menu_items`, `orders`, `order_items`
+
+#### 4.5: Import Sample Data
+1. **Open new SQL Editor**
+2. **Open SQL Script** → Navigate to `backend/database/seed-dbeaver.sql` ✅
+3. **Execute script** - No editing needed!
+4. **Verify data imported:**
+   ```sql
+   SELECT COUNT(*) FROM users;
+   SELECT COUNT(*) FROM menu_items;
+   SELECT * FROM users WHERE role = 'admin';
+   ```
+
+**Expected Results:**
+- 4 users (1 admin, 1 staff, 2 customers)
+- 10+ menu items
+- Admin user: admin@gmail.com
 
 ---
 
@@ -135,9 +197,9 @@ NODE_ENV=production
 DB_TYPE=mysql
 
 # Replace with your actual RDS endpoint
-DB_HOST=food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com
+DB_HOST=food-ordering-db.cjmqw882g6hb.us-east-1.rds.amazonaws.com
 DB_USER=admin
-DB_PASSWORD=FoodOrder2024!SecurePass
+DB_PASSWORD=FoodOrder2024!
 DB_NAME=food_ordering
 DB_PORT=3306
 
@@ -149,37 +211,41 @@ FRONTEND_URL=http://44.210.235.221:3000
 CORS_ORIGIN=http://44.210.235.221:3000
 ```
 
-### Step 3: Setup Database (Choose Method)
+### Step 3: Verify Database Connection
+**Your database is now ready! The RDS setup was completed in Phase 1 using DBeaver.**
 
-**🎯 Method A: DBeaver (Recommended)**
-1. **Connect DBeaver to RDS:**
-   - Host: `food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com`
-   - Port: `3306`
-   - Database: `food_ordering`
-   - Username: `admin`
-   - Password: `FoodOrder2024!`
-
-2. **Import Schema:**
-   - Right-click database → SQL Editor → Open SQL Script
-   - Navigate to `backend/database/schema.sql`
-   - Execute (Ctrl+Enter)
-
-3. **Import Sample Data:**
-   - Open new SQL Editor
-   - Load `backend/database/seed.sql`
-   - Execute script
-
-**🔧 Method B: Node.js Scripts**
-```bash
-# Setup tables
-npm run setup-rds
-
-# Add sample data
-npm run seed-rds
-
-# Verify setup
-npm run check-rds
-```
+**Verify your backend can connect:**
+1. **Check .env file has correct RDS endpoint**
+2. **Test connection:**
+   ```bash
+   # Create simple connection test
+   cat > test-connection.js << 'EOF'
+   require('dotenv').config();
+   const mysql = require('mysql2/promise');
+   
+   async function testConnection() {
+     try {
+       const connection = await mysql.createConnection({
+         host: process.env.DB_HOST,
+         user: process.env.DB_USER,
+         password: process.env.DB_PASSWORD,
+         database: process.env.DB_NAME,
+         port: process.env.DB_PORT
+       });
+       console.log('✅ Database connection successful!');
+       const [rows] = await connection.execute('SELECT COUNT(*) as count FROM users');
+       console.log('✅ Found', rows[0].count, 'users in database');
+       await connection.end();
+     } catch (error) {
+       console.error('❌ Connection failed:', error.message);
+     }
+   }
+   
+   testConnection();
+   EOF
+   
+   node test-connection.js
+   ```
 
 ### Step 4: Start Backend Service
 ```bash
@@ -276,16 +342,31 @@ pm2 restart all
 ## 🛠️ Troubleshooting Guide
 
 ### Database Issues
-```bash
-# Can't connect to RDS
-# 1. Check security group allows port 3306
-# 2. Verify endpoint and credentials
-# 3. Test: telnet your-rds-endpoint 3306
 
-# Database connection errors
-mysql -h your-rds-endpoint -u admin -p
-cat .env  # Check environment variables
-```
+**DBeaver Connection Failed:**
+1. **Check RDS Status:** AWS Console → RDS → Databases → Ensure "Available"
+2. **Security Group:** Verify port 3306 is open to 0.0.0.0/0
+3. **Endpoint:** Copy exact endpoint from AWS Console
+4. **Credentials:** Username: `admin`, Password: `FoodOrder2024!`
+
+**Application Can't Connect to RDS:**
+1. **Check .env file:**
+   ```bash
+   cat .env  # Verify DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+   ```
+2. **Test from EC2:**
+   ```bash
+   # Test basic connectivity
+   telnet food-ordering-db.cjmqw882g6hb.us-east-1.rds.amazonaws.com 3306
+   ```
+3. **Check Node.js connection:**
+   ```bash
+   node test-connection.js  # Use the test script from Step 3
+   ```
+
+**Database Not Found Error:**
+- **Solution:** Recreate database in DBeaver using Phase 1 steps
+- **Verify:** Database name is `food_ordering` (with underscore, not hyphen)
 
 ### EC2 Issues
 ```bash
@@ -310,6 +391,42 @@ pm2 restart all
 
 ---
 
+## 🔧 DBeaver Setup Guide
+
+### Installation
+1. **Download DBeaver Community Edition** from https://dbeaver.io/download/
+2. **Install** on your local Windows machine
+3. **Launch DBeaver**
+
+### RDS Connection Steps
+1. **New Connection** → **MySQL** → **Next**
+2. **Server Settings:**
+   ```
+   Server Host: food-ordering-db.cjmqw882g6hb.us-east-1.rds.amazonaws.com
+   Port: 3306
+   Database: [Leave empty initially]
+   Username: admin
+   Password: FoodOrder2024!
+   ```
+3. **Test Connection** → Should show "Connected"
+4. **Finish**
+
+### Database Creation Workflow
+1. **Connect to RDS server** (without database name)
+2. **Create database:** `CREATE DATABASE food_ordering;`
+3. **Edit connection** → Add database name: `food_ordering`
+4. **Reconnect** to specific database
+5. **Import schema** from `backend/database/schema.sql`
+6. **Import data** from `backend/database/seed.sql`
+
+### Common DBeaver Issues
+- **Connection timeout:** Check AWS security group allows port 3306
+- **Access denied:** Verify username/password are correct
+- **Unknown database:** Create database first, then reconnect
+- **SQL errors:** Remove `CREATE DATABASE` and `USE` statements from imported files
+
+---
+
 ## 🧹 Cleanup Instructions
 
 ### When Done Testing
@@ -331,11 +448,15 @@ pm2 delete all
 
 ### Backend Scripts
 ```bash
-npm run setup-rds    # Create RDS tables
-npm run seed-rds     # Add sample data
-npm run check-rds    # Verify database
-npm run start        # Start production server
+npm start            # Start production server
+npm run dev          # Start development server
 ```
+
+### Database Management
+**All database operations done via DBeaver:**
+- **Schema changes:** Use `backend/database/schema-dbeaver.sql` in DBeaver
+- **Data updates:** Use `backend/database/seed-dbeaver.sql` in DBeaver
+- **Queries:** Use DBeaver SQL Editor for all database operations
 
 ### Deployment Scripts
 ```bash
@@ -355,9 +476,23 @@ deploy-aws.bat       # Windows deployment helper
 - **EC2 IP**: Currently set to `44.210.235.221`
 - **Default Password**: `123456` for all test accounts
 
-### Support Files
-- **Complete Setup**: `AWS_COMPLETE_SETUP.md`
-- **DBeaver Guide**: `RDS_DBEAVER_SETUP.md`
-- **GitHub Integration**: `github-to-aws.md`
+### Database Files
+- **Schema**: `backend/database/schema-dbeaver.sql` (ready for DBeaver import)
+- **Sample Data**: `backend/database/seed-dbeaver.sql` (ready for DBeaver import)
+- **Database Name**: `food_ordering` (create in DBeaver)
+- **Connection Test**: `npm run test-rds`
 
-This setup will have your application running on AWS within 1 hour and cost less than $5/month!
+### Support Files
+- **Database Naming**: `DATABASE_NAMING_GUIDE.md`
+- **GitHub Integration**: `github-to-aws.md`
+- **Deployment Helper**: `deploy-aws.bat`
+
+## 🎯 DBeaver-First Approach
+This guide prioritizes DBeaver for all database operations:
+- ✅ **Visual interface** for database management
+- ✅ **No command line** MySQL knowledge required  
+- ✅ **Cross-platform** compatibility
+- ✅ **Error handling** with clear messages
+- ✅ **File import** capabilities for schema and data
+
+**Setup time:** ~1 hour | **Monthly cost:** ~$3-5 | **Database tool:** DBeaver only
