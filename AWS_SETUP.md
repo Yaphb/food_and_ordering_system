@@ -85,11 +85,13 @@ Inbound Rules:
    ```
 3. **Test Connection** → Should connect to specific database
 4. **Save changes**
+5. **Double-click connection** to reconnect with database selected
+6. **Verify:** Connection should show `food_ordering` database in the tree
 
 #### 4.4: Import Database Schema
 1. **Right-click connection** → **SQL Editor**
 2. **Open SQL Script** → Navigate to `backend/database/schema-dbeaver.sql` ✅
-3. **Execute script** (Ctrl+Enter) - No editing needed!
+3. **Execute entire script** (Ctrl+Enter) - Includes `USE food_ordering;` automatically!
 4. **Verify tables created:**
    ```sql
    SHOW TABLES;
@@ -99,7 +101,7 @@ Inbound Rules:
 #### 4.5: Import Sample Data
 1. **Open new SQL Editor**
 2. **Open SQL Script** → Navigate to `backend/database/seed-dbeaver.sql` ✅
-3. **Execute script** - No editing needed!
+3. **Execute entire script** - Includes `USE food_ordering;` automatically!
 4. **Verify data imported:**
    ```sql
    SELECT COUNT(*) FROM users;
