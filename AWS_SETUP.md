@@ -1,183 +1,363 @@
-# AWS Free Tier Setup
+# Complete AWS Deployment Guide
+**React.js + Node.js Food Ordering System**
 
-Deploy to AWS using free tier (EC2 + RDS MySQL).
+## 💰 Cost Overview (Under $50 Budget)
+- **EC2 t2.micro**: FREE (750 hours/month for 12 months)
+- **RDS db.t2.micro**: FREE (750 hours/month for 12 months)  
+- **Storage**: ~$2-3/month (20GB RDS + 8GB EC2)
+- **Data Transfer**: ~$1-2/month
+- **Total**: ~$3-5/month ✅
 
-## Free Tier Limits
+## 📋 Pre-Deployment Checklist
+- [ ] AWS Account created and verified
+- [ ] Billing alerts set ($10, $25, $40)
+- [ ] Project tested locally
+- [ ] Environment files ready
 
-- EC2: 750 hrs/month t2.micro (12 months)
-- RDS: 750 hrs/month db.t2.micro MySQL (12 months)
-- Storage: 20GB RDS, 8GB EC2
+---
 
-## 1. Create RDS Database
+## 🗄️ Phase 1: RDS Database Setup (10 minutes)
 
-**AWS Console → RDS → Create database:**
-- Engine: MySQL 8.0
-- Template: **Free tier**
-- Identifier: `food-ordering-db`
-- Master username: `admin`
-- Password: (save this!)
-- Instance: **db.t2.micro**
-- Storage: 20GB
-- Public access: **Yes**
-- Initial database: `food_ordering`
+### Step 1: Create RDS Instance
+**AWS Console → RDS → Create Database**
+```
+Engine: MySQL 8.0.35
+Template: Free tier ✓
+DB instance identifier: food-ordering-db
+Master username: admin
+Master password: FoodOrder2024!SecurePass
+DB instance class: db.t2.micro ✓
+Storage: 20 GB (free tier limit)
+Public access: YES ✓ (for DBeaver)
+Initial database name: food_ordering
+```
 
-**Configure Security Group:**
-- EC2 → Security Groups → `food-ordering-db-sg`
-- Inbound: MySQL (3306) from Anywhere
+### Step 2: Configure Security Group
+**Create new security group: `food-ordering-rds-sg`**
+```
+Inbound Rules:
+- Type: MySQL/Aurora
+- Port: 3306
+- Source: 0.0.0.0/0 (for initial setup)
+```
 
-**Save Endpoint:**
-- Copy endpoint: `food-ordering-db.xxxxx.region.rds.amazonaws.com`
+### Step 3: Save RDS Information
+```
+Endpoint: food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com
+Port: 3306
+Username: admin
+Password: FoodOrder2024!
+Database: food_ordering
+```
 
-## 2. Create EC2 Instance
+---
 
-**AWS Console → EC2 → Launch Instance:**
-- Name: `food-ordering-server`
-- AMI: Ubuntu 22.04 LTS
-- Instance: **t2.micro**
-- Key pair: Create new → Download `.pem` file
-- Security group: Allow SSH (22), HTTP (80), Custom TCP (5000)
-- Storage: 8GB
+## 🖥️ Phase 2: EC2 Instance Setup (15 minutes)
 
-**Connect to EC2:**
+### Step 1: Launch EC2 Instance
+**AWS Console → EC2 → Launch Instance**
+```
+Name: food-ordering-server
+AMI: Ubuntu Server 22.04 LTS (Free tier)
+Instance type: t2.micro ✓
+Key pair: Create new → Download .pem file
+Security group: Create new (food-ordering-ec2-sg)
+Storage: 8 GB gp2 (Free tier)
+```
+
+### Step 2: Configure Security Group
+**Edit `food-ordering-ec2-sg` inbound rules:**
+```
+- SSH (22) from My IP
+- HTTP (80) from Anywhere
+- Custom TCP (3000) from Anywhere - React app
+- Custom TCP (5000) from Anywhere - API server
+```
+
+### Step 3: Connect to EC2
 ```bash
+# Set key permissions (Git Bash on Windows)
 chmod 400 food-ordering-key.pem
-ssh -i "food-ordering-key.pem" ubuntu@<EC2-IP>
+
+# Connect to instance
+ssh -i "food-ordering-key.pem" ubuntu@YOUR-EC2-PUBLIC-IP
 ```
 
-**Install dependencies:**
+### Step 4: Install Dependencies
 ```bash
+# Update system
 sudo apt update && sudo apt upgrade -y
+
+# Install Node.js 18
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs mysql-client git
-sudo npm install -g pm2
+sudo apt install -y nodejs git
+
+# Install global packages
+sudo npm install -g pm2 serve
+
+# Verify installations
+node --version    # Should show v18.x.x
+npm --version     # Should show 9.x.x
+pm2 --version     # Should show 5.x.x
 ```
 
-## 3. Deploy Backend
+---
 
+## 🚀 Phase 3: Deploy Application (20 minutes)
+
+### Step 1: Upload Project Files
+
+**Option A: Git Clone (Recommended)**
 ```bash
-# Upload or clone project
-mkdir ~/food-ordering-system
-cd ~/food-ordering-system
-# Upload files via SCP or git clone
-
-cd backend
-npm install --production
+git clone https://github.com/yourusername/food_and_ordering_system.git
+cd food_and_ordering_system
 ```
 
-**Create `.env`:**
+**Option B: SCP Upload**
+```bash
+# From local Windows machine
+scp -i "food-ordering-key.pem" -r ./aws-deploy ubuntu@YOUR-EC2-IP:~/food-ordering-system
+```
+
+### Step 2: Configure Backend
+```bash
+cd food-ordering-system/backend
+npm install --production
+
+# Create production environment
+nano .env
+```
+
+**Copy this into .env (replace with your actual values):**
 ```env
 PORT=5000
 NODE_ENV=production
 DB_TYPE=mysql
-DB_HOST=food-ordering-db.xxxxx.region.rds.amazonaws.com
-DB_NAME=food_ordering
+
+# Replace with your actual RDS endpoint
+DB_HOST=food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com
 DB_USER=admin
-DB_PASSWORD=YourPassword123!
-JWT_SECRET=random_secret_key_here
-FRONTEND_URL=http://<EC2-IP>:3000
+DB_PASSWORD=FoodOrder2024!SecurePass
+DB_NAME=food_ordering
+DB_PORT=3306
+
+# Generate strong JWT secret
+JWT_SECRET=your_super_secure_jwt_secret_key_change_this_now_64_chars_minimum
+
+# Replace with your EC2 public IP
+FRONTEND_URL=http://44.210.235.221:3000
+CORS_ORIGIN=http://44.210.235.221:3000
 ```
 
-**Import database:**
+### Step 3: Setup Database (Choose Method)
+
+**🎯 Method A: DBeaver (Recommended)**
+1. **Connect DBeaver to RDS:**
+   - Host: `food-ordering-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com`
+   - Port: `3306`
+   - Database: `food_ordering`
+   - Username: `admin`
+   - Password: `FoodOrder2024!`
+
+2. **Import Schema:**
+   - Right-click database → SQL Editor → Open SQL Script
+   - Navigate to `backend/database/schema.sql`
+   - Execute (Ctrl+Enter)
+
+3. **Import Sample Data:**
+   - Open new SQL Editor
+   - Load `backend/database/seed.sql`
+   - Execute script
+
+**🔧 Method B: Node.js Scripts**
 ```bash
-mysql -h <RDS-ENDPOINT> -u admin -p food_ordering < database/schema.sql
-mysql -h <RDS-ENDPOINT> -u admin -p food_ordering < database/seed.sql
+# Setup tables
+npm run setup-rds
+
+# Add sample data
+npm run seed-rds
+
+# Verify setup
+npm run check-rds
 ```
 
-**Start with PM2:**
+### Step 4: Start Backend Service
 ```bash
-pm2 start index.js --name api
+# Start with PM2
+pm2 start index.js --name food-ordering-api
+
+# Save PM2 configuration
 pm2 save
+
+# Setup PM2 to start on boot
 pm2 startup
+# Follow the command it provides
+
+# Test API endpoint
+curl http://localhost:5000/api/menu
 ```
 
-Test: `http://<EC2-IP>:5000/api/menu`
-
-## 4. Deploy Frontend
-
-**Build locally:**
+### Step 5: Deploy Frontend
 ```bash
-cd frontend
-echo "REACT_APP_API_URL=http://<EC2-IP>:5000" > .env
-npm run build
-```
+cd ../frontend
 
-**Upload to EC2:**
-```bash
-# On EC2
-cd ~/food-ordering-system/frontend
+# Install dependencies
 npm install
+
+# Create production environment
+echo "REACT_APP_API_URL=http://44.210.235.221:5000" > .env
+
+# Build for production
 npm run build
-sudo npm install -g serve
-pm2 start "serve -s build -l 3000" --name frontend
+
+# Start frontend with PM2
+pm2 start "serve -s build -l 3000" --name food-ordering-frontend
 pm2 save
 ```
 
-Access: `http://<EC2-IP>:3000`
+---
 
-## 5. Optional: Setup Domain & SSL
+## ✅ Phase 4: Verification & Testing (10 minutes)
 
-**Route 53:**
-- Create A record: `api.yourdomain.com` → EC2 IP
+### Application Access
+- **Frontend**: http://44.210.235.221:3000
+- **API**: http://44.210.235.221:5000/api/menu
+- **Database**: Connected via DBeaver
 
-**Install SSL:**
-```bash
-sudo apt install -y nginx certbot python3-certbot-nginx
-sudo nano /etc/nginx/sites-available/food-ordering
+### Test Login Credentials
+```
+Admin: admin@gmail.com / 123456
+Staff: staff@gmail.com / 123456
+Customer: johndoe@gmail.com / 123456
 ```
 
-Add:
-```nginx
-server {
-    listen 80;
-    server_name api.yourdomain.com;
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_set_header Host $host;
-    }
-}
-```
-
+### System Status Check
 ```bash
-sudo ln -s /etc/nginx/sites-available/food-ordering /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-sudo certbot --nginx -d api.yourdomain.com
-```
-
-## Monitoring
-
-```bash
+# Check PM2 services
 pm2 status
-pm2 logs api
-pm2 restart api
+
+# View logs
+pm2 logs food-ordering-api
+pm2 logs food-ordering-frontend
+
+# Check system resources
+free -h
+df -h
 ```
 
-## Troubleshooting
+---
 
-**Can't connect to RDS:**
-- Check security group allows port 3306
-- Verify endpoint and password
+## 🔒 Phase 5: Security & Monitoring
 
-**EC2 connection timeout:**
-- Check security group allows your IP on port 22
-- Verify key permissions: `chmod 400 key.pem`
-
-**App not starting:**
+### 1. Restrict RDS Access (After Testing)
 ```bash
+# Edit RDS security group
+# Change source from 0.0.0.0/0 to EC2 security group ID only
+```
+
+### 2. Set Billing Alerts
+**AWS Console → Billing → Billing Preferences**
+- Enable billing alerts
+- Create alerts at $10, $25, $40
+
+### 3. Regular Monitoring
+```bash
+# Daily checks
+pm2 status
+pm2 monit
+
+# Weekly maintenance
+sudo apt update && sudo apt upgrade -y
+pm2 restart all
+```
+
+---
+
+## 🛠️ Troubleshooting Guide
+
+### Database Issues
+```bash
+# Can't connect to RDS
+# 1. Check security group allows port 3306
+# 2. Verify endpoint and credentials
+# 3. Test: telnet your-rds-endpoint 3306
+
+# Database connection errors
+mysql -h your-rds-endpoint -u admin -p
+cat .env  # Check environment variables
+```
+
+### EC2 Issues
+```bash
+# Connection timeout
+# 1. Check security group allows SSH (22)
+# 2. Verify key permissions: chmod 400 key.pem
+# 3. Check correct public IP
+
+# Application not loading
+pm2 status
 pm2 logs
 pm2 restart all
 ```
 
-## Cleanup
+### Cost Issues
+```bash
+# Monitor usage
+# 1. AWS Console → Billing Dashboard
+# 2. Ensure using t2.micro instances only
+# 3. Check data transfer usage
+```
 
-To avoid charges:
-1. Terminate EC2 instance
-2. Delete RDS database
-3. Delete security groups
+---
 
-## Security Tips
+## 🧹 Cleanup Instructions
 
-- Restrict RDS to EC2 security group only
-- Use strong JWT_SECRET
-- Enable HTTPS with SSL
-- Set billing alerts in AWS Console
+### When Done Testing
+```bash
+# Stop PM2 services
+pm2 delete all
+
+# AWS Console cleanup:
+# 1. Terminate EC2 instance
+# 2. Delete RDS database
+# 3. Delete security groups
+# 4. Delete key pairs
+# 5. Delete any snapshots
+```
+
+---
+
+## 📚 Available Scripts
+
+### Backend Scripts
+```bash
+npm run setup-rds    # Create RDS tables
+npm run seed-rds     # Add sample data
+npm run check-rds    # Verify database
+npm run start        # Start production server
+```
+
+### Deployment Scripts
+```bash
+deploy-aws.bat       # Windows deployment helper
+```
+
+---
+
+## 🎯 Quick Reference
+
+### Environment Files
+- **Frontend**: `frontend/.env.production` → Copy as `.env`
+- **Backend**: `backend/.env.production` → Copy as `.env`
+
+### Key Information
+- **RDS Endpoint**: Replace `xxxxxxxxxx` with your actual endpoint
+- **EC2 IP**: Currently set to `44.210.235.221`
+- **Default Password**: `123456` for all test accounts
+
+### Support Files
+- **Complete Setup**: `AWS_COMPLETE_SETUP.md`
+- **DBeaver Guide**: `RDS_DBEAVER_SETUP.md`
+- **GitHub Integration**: `github-to-aws.md`
+
+This setup will have your application running on AWS within 1 hour and cost less than $5/month!

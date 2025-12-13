@@ -13,6 +13,9 @@
     "check": "node scripts/checkMySQL.js",
     "create-admin": "node scripts/createAdminMySQL.js",
     "create-admin-dynamodb": "node scripts/createAdmin.js",
+    "setup-rds": "node scripts/setupRDS.js",
+    "seed-rds": "node scripts/seedRDS.js",
+    "check-rds": "node scripts/checkMySQL.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
