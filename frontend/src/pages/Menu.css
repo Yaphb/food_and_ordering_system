@@ -728,3 +728,206 @@
     width: 100%;
   }
 }
+/* Compact Filter Bar */
+.compact-filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-input-container {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--color-gray-500);
+  z-index: 1;
+}
+
+.compact-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background-color: var(--color-white);
+  color: var(--color-black);
+  transition: all var(--transition-fast);
+  letter-spacing: -0.01em;
+}
+
+.compact-search-input:focus {
+  outline: none;
+  border-color: var(--color-black);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.compact-search-input::placeholder {
+  color: var(--color-gray-500);
+}
+
+.clear-search {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  transition: all var(--transition-fast);
+}
+
+.clear-search:hover {
+  color: var(--color-black);
+  background-color: var(--color-gray-100);
+}
+
+.compact-select {
+  padding: 10px 12px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background-color: var(--color-white);
+  color: var(--color-black);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: -0.01em;
+}
+
+.compact-select:focus {
+  outline: none;
+  border-color: var(--color-black);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.category-select {
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.price-select {
+  min-width: 110px;
+  max-width: 130px;
+}
+
+.clear-filters-btn {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clear-filters-btn:hover {
+  background-color: var(--color-gray-200);
+  border-color: var(--color-black);
+  color: var(--color-black);
+}
+
+/* Dark theme support for compact filter bar */
+[data-theme="dark"] .compact-filter-bar {
+  background-color: var(--color-gray-800);
+  border-color: var(--color-gray-600);
+}
+
+[data-theme="dark"] .compact-search-input {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-600);
+  color: var(--color-white);
+}
+
+[data-theme="dark"] .compact-search-input:focus {
+  border-color: var(--color-white);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .compact-search-input::placeholder {
+  color: var(--color-gray-400);
+}
+
+[data-theme="dark"] .search-icon {
+  color: var(--color-gray-400);
+}
+
+[data-theme="dark"] .clear-search {
+  color: var(--color-gray-400);
+}
+
+[data-theme="dark"] .clear-search:hover {
+  color: var(--color-white);
+  background-color: var(--color-gray-600);
+}
+
+[data-theme="dark"] .compact-select {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-600);
+  color: var(--color-white);
+}
+
+[data-theme="dark"] .compact-select:focus {
+  border-color: var(--color-white);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .clear-filters-btn {
+  background-color: var(--color-gray-700);
+  color: var(--color-gray-400);
+  border-color: var(--color-gray-600);
+}
+
+[data-theme="dark"] .clear-filters-btn:hover {
+  background-color: var(--color-gray-600);
+  border-color: var(--color-white);
+  color: var(--color-white);
+}
+
+/* Responsive adjustments for compact filter bar */
+@media (max-width: 768px) {
+  .compact-filter-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .search-input-container {
+    min-width: 100%;
+    order: 1;
+  }
+  
+  .category-select,
+  .price-select {
+    flex: 1;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .clear-filters-btn {
+    order: 3;
+  }
+}

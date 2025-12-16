@@ -3,6 +3,31 @@ const router = express.Router();
 const MenuItem = require('../models-mysql/MenuItem');
 const { auth, authorize } = require('../middleware/auth-mysql');
 
+// Get all unique categories
+router.get('/categories', async (req, res) => {
+  try {
+    console.log('Categories endpoint called (MySQL)');
+    const menuItems = await MenuItem.findAll();
+    console.log('Menu items found:', menuItems.length);
+    
+    const categories = [...new Set(menuItems.map(item => item.category))];
+    console.log('Unique categories:', categories);
+    
+    // Ensure 'none' is always first, then sort the rest
+    const sortedCategories = categories.sort((a, b) => {
+      if (a === 'none') return -1;
+      if (b === 'none') return 1;
+      return a.localeCompare(b);
+    });
+    
+    console.log('Sorted categories:', sortedCategories);
+    res.json(sortedCategories);
+  } catch (error) {
+    console.error('Categories endpoint error (MySQL):', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
