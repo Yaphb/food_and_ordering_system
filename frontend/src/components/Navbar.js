@@ -37,8 +37,14 @@ const Navbar = () => {
                   <li><Link to="/orders" className={isActive('/orders') ? 'active' : ''}>Order History</Link></li>
                 </>
               )}
-              {user.role === 'admin' && <li><Link to="/admin" className={isActive('/admin') ? 'active' : ''}>Admin</Link></li>}
-              {(user.role === 'staff' || user.role === 'admin') && <li><Link to="/staff" className={isActive('/staff') ? 'active' : ''}>Staff</Link></li>}
+              {user.role === 'admin' && (
+                <>
+                  <li><Link to="/admin" className={isActive('/admin') ? 'active' : ''}>Menu</Link></li>
+                  <li><Link to="/staff" className={isActive('/staff') ? 'active' : ''}>Staff</Link></li>
+                  <li><Link to="/users" className={isActive('/users') ? 'active' : ''}>Users</Link></li>
+                </>
+              )}
+              {user.role === 'staff' && <li><Link to="/staff" className={isActive('/staff') ? 'active' : ''}>Staff</Link></li>}
               <li>
                 <Link to="/profile" className={`user-profile-link ${isActive('/profile') ? 'active' : ''}`}>
                   <div className="nav-avatar">

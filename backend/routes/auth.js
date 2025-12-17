@@ -159,4 +159,71 @@ router.put('/change-password', auth, async (req, res) => {
   }
 });
 
+// Admin-only routes for user management
+const adminAuth = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+  next();
+};
+
+// Get all users (admin only)
+router.get('/users', auth, adminAuth, async (req, res) => {
+  try {
+    const users = await User.getAllUsers();
+    // Remove passwords from response
+    const safeUsers = users.map(user => {
+      const { password, ...safeUser } = user;
+      return safeUser;
+    });
+    res.json(safeUsers);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update user role (admin only)
+router.put('/users/:id/role', auth, adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['customer', 'staff', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    // Prevent admin from demoting themselves
+    if (id === req.user.id && role !== 'admin') {
+      return res.status(400).json({ message: 'Cannot change your own admin role' });
+    }
+
+    const updatedUser = await User.updateRole(id, role);
+    const { password, ...safeUser } = updatedUser;
+    
+    res.json({
+      message: 'User role updated successfully',
+      user: safeUser
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Delete user (admin only)
+router.delete('/users/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent admin from deleting themselves
+    if (id === req.user.id) {
+      return res.status(400).json({ message: 'Cannot delete your own account' });
+    }
+
+    await User.deleteUser(id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

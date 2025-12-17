@@ -147,6 +147,25 @@ class User {
     const result = await dynamoDB.update(params).promise();
     return result.Attributes;
   }
+
+  static async getAllUsers() {
+    const params = {
+      TableName: TABLE_NAME
+    };
+
+    const result = await dynamoDB.scan(params).promise();
+    return result.Items || [];
+  }
+
+  static async deleteUser(id) {
+    const params = {
+      TableName: TABLE_NAME,
+      Key: { id }
+    };
+
+    await dynamoDB.delete(params).promise();
+    return true;
+  }
 }
 
 module.exports = User;

@@ -57,6 +57,24 @@
   box-shadow: none;
 }
 
+/* Dark theme for primary button */
+[data-theme="dark"] .btn-primary {
+  background-color: var(--color-white);
+  color: var(--color-black);
+  border-color: var(--color-white);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background-color: var(--color-gray-200);
+  border-color: var(--color-gray-200);
+}
+
+[data-theme="dark"] .btn-primary:disabled {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-700);
+  color: var(--color-gray-400);
+}
+
 /* Secondary button */
 .btn-secondary {
   background-color: var(--color-white);

@@ -746,21 +746,24 @@
 }
 
 .btn-add-small {
-  padding: 6px 12px;
+  padding: 8px 16px;
   background-color: var(--color-black);
   color: var(--color-white);
   border: 1px solid var(--color-black);
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
   transition: all var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-add-small:hover {
   background-color: var(--color-gray-800);
   border-color: var(--color-gray-800);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Dropdown Form */
@@ -818,16 +821,19 @@
 .dropdown-categories {
   max-height: 200px;
   overflow-y: auto;
+  background-color: var(--color-white);
 }
 
 .dropdown-category-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 20px;
-  border-bottom: 1px solid var(--color-gray-100);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-gray-200);
   transition: all var(--transition-fast);
   position: relative;
+  background-color: var(--color-white);
+  color: var(--color-black);
 }
 
 .dropdown-category-item:last-child {
@@ -835,17 +841,19 @@
 }
 
 .dropdown-category-item:hover {
-  background-color: var(--color-gray-50);
+  background-color: var(--color-gray-100);
 }
 
 .show-all-item {
-  border-bottom: 2px solid var(--color-gray-200);
+  border-bottom: 2px solid var(--color-gray-300);
   margin-bottom: 4px;
+  background-color: var(--color-gray-100);
+  padding: 12px 20px;
 }
 
 .show-all-item .category-name {
   font-weight: 600;
-  color: var(--color-gray-700);
+  color: var(--color-black);
 }
 
 .show-all-item .category-info-small.active-filter .category-name {
@@ -862,14 +870,15 @@
   margin: -4px -8px -4px -12px;
   border-radius: 8px;
   transition: all var(--transition-fast);
+  background-color: transparent;
 }
 
 .category-info-small:hover {
-  background-color: var(--color-gray-100);
+  background-color: var(--color-gray-200);
 }
 
 .dropdown-category-item:hover .category-info-small:not(.active-filter) {
-  background-color: var(--color-gray-100);
+  background-color: var(--color-gray-200);
 }
 
 .category-info-small.active-filter {
@@ -902,6 +911,7 @@
   color: var(--color-gray-600);
   font-size: 0.75rem;
   letter-spacing: -0.01em;
+  font-weight: 400;
 }
 
 .category-actions-small {
@@ -923,26 +933,27 @@
 }
 
 .btn-edit-tiny {
-  background-color: var(--color-black);
-  color: var(--color-white);
-  border: 1px solid var(--color-black);
+  background-color: var(--color-gray-300);
+  color: var(--color-black);
+  border: 1px solid var(--color-gray-400);
 }
 
 .btn-edit-tiny:hover {
-  background-color: var(--color-gray-800);
-  border-color: var(--color-gray-800);
+  background-color: var(--color-gray-400);
+  border-color: var(--color-gray-500);
+  color: var(--color-black);
 }
 
 .btn-delete-tiny {
-  background-color: var(--color-white);
-  color: var(--color-gray-600);
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-700);
   border: 1px solid var(--color-gray-300);
 }
 
 .btn-delete-tiny:hover {
-  border-color: var(--color-black);
+  border-color: var(--color-gray-500);
   color: var(--color-black);
-  background-color: var(--color-gray-50);
+  background-color: var(--color-gray-300);
 }
 
 .btn-edit-tiny svg,
@@ -1151,45 +1162,148 @@
   border-color: var(--color-gray-200);
 }
 
+/* Categories dropdown container - enhanced dark theme */
 [data-theme="dark"] .categories-dropdown {
-  background-color: var(--color-gray-800);
-  border-color: var(--color-gray-600);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background-color: var(--color-gray-900) !important;
+  border-color: var(--color-gray-700) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* Dropdown header styling */
 [data-theme="dark"] .dropdown-header {
-  background-color: var(--color-gray-700);
-  border-bottom-color: var(--color-gray-600);
-}
-
-[data-theme="dark"] .dropdown-form {
-  background-color: var(--color-gray-700);
-  border-bottom-color: var(--color-gray-600);
-}
-
-[data-theme="dark"] .dropdown-category-item {
+  background-color: var(--color-gray-800);
   border-bottom-color: var(--color-gray-700);
 }
 
-[data-theme="dark"] .dropdown-category-item:hover {
+[data-theme="dark"] .dropdown-header h4 {
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Dropdown form area */
+[data-theme="dark"] .dropdown-form {
+  background-color: var(--color-gray-800);
+  border-bottom-color: var(--color-gray-700);
+}
+
+[data-theme="dark"] .category-input-group-small input {
+  background-color: var(--color-gray-700);
+  color: var(--color-white);
+  border-color: var(--color-gray-600);
+}
+
+[data-theme="dark"] .category-input-group-small input::placeholder {
+  color: var(--color-gray-500);
+}
+
+[data-theme="dark"] .category-input-group-small input:focus {
+  border-color: var(--color-white);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
   background-color: var(--color-gray-700);
 }
 
+/* Dropdown categories list items */
+[data-theme="dark"] .dropdown-categories {
+  background-color: var(--color-gray-900) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item {
+  background-color: var(--color-gray-900) !important;
+  border-bottom-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover {
+  background-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:last-child {
+  border-bottom: none !important;
+}
+
+/* Category name and count text - DARK THEME */
+[data-theme="dark"] .category-name {
+  color: var(--color-white) !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Category info styling - DARK THEME */
+[data-theme="dark"] .category-info-small {
+  color: var(--color-white) !important;
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .category-info-small:hover {
+  background-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small {
+  background-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) {
+  background-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter .category-name,
+[data-theme="dark"] .category-info-small.active-filter .category-count-small {
+  color: var(--color-black) !important;
+}
+
+/* Show all item styling */
+[data-theme="dark"] .show-all-item {
+  border-bottom-color: var(--color-gray-700) !important;
+  background-color: var(--color-gray-800) !important;
+  padding: 12px 20px !important;
+}
+
+[data-theme="dark"] .show-all-item .category-name {
+  color: var(--color-white) !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .show-all-item .category-info-small .category-name {
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .show-all-item .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+[data-theme="dark"] .show-all-item .category-info-small.active-filter .category-name {
+  color: var(--color-black) !important;
+}
+
+/* Buttons in dark theme */
 [data-theme="dark"] .btn-add-small {
-  background-color: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-white);
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2) !important;
 }
 
 [data-theme="dark"] .btn-add-small:hover {
-  background-color: var(--color-gray-200);
-  border-color: var(--color-gray-200);
+  background-color: var(--color-gray-200) !important;
+  border-color: var(--color-gray-200) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.25) !important;
 }
 
 [data-theme="dark"] .btn-save-small {
   background-color: var(--color-white);
   color: var(--color-black);
   border-color: var(--color-white);
+  font-weight: 500;
 }
 
 [data-theme="dark"] .btn-save-small:hover {
@@ -1198,80 +1312,77 @@
 }
 
 [data-theme="dark"] .btn-edit-tiny {
-  background-color: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-white);
+  background-color: var(--color-gray-600) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-gray-500) !important;
 }
 
 [data-theme="dark"] .btn-edit-tiny:hover {
-  background-color: var(--color-gray-200);
-  border-color: var(--color-gray-200);
+  background-color: var(--color-gray-500) !important;
+  border-color: var(--color-gray-400) !important;
+  color: var(--color-white) !important;
 }
 
 [data-theme="dark"] .btn-delete-tiny {
-  background-color: var(--color-gray-800);
-  color: var(--color-gray-400);
-  border-color: var(--color-gray-600);
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-gray-300) !important;
+  border-color: var(--color-gray-600) !important;
 }
 
 [data-theme="dark"] .btn-delete-tiny:hover {
-  border-color: var(--color-white);
-  color: var(--color-white);
-  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-500) !important;
+  color: var(--color-white) !important;
+  background-color: var(--color-gray-600) !important;
 }
 
+/* Pagination buttons */
 [data-theme="dark"] .pagination-btn-small {
-  background-color: var(--color-gray-700);
+  background-color: var(--color-gray-800);
   color: var(--color-white);
-  border-color: var(--color-gray-600);
+  border-color: var(--color-gray-700);
 }
 
 [data-theme="dark"] .pagination-btn-small:hover:not(:disabled) {
   border-color: var(--color-white);
-  background-color: var(--color-gray-600);
+  background-color: var(--color-gray-700);
+  color: var(--color-white);
 }
 
 [data-theme="dark"] .pagination-btn-small:disabled {
-  background-color: var(--color-gray-800);
-  border-color: var(--color-gray-700);
+  background-color: var(--color-gray-900);
+  border-color: var(--color-gray-800);
   color: var(--color-gray-600);
 }
 
+/* Pagination area */
 [data-theme="dark"] .dropdown-pagination {
+  background-color: var(--color-gray-800);
+  border-top-color: var(--color-gray-700);
+}
+
+[data-theme="dark"] .pagination-info-small {
+  color: var(--color-white);
+  font-weight: 500;
+}
+
+/* Category edit input */
+[data-theme="dark"] .category-edit-small input {
   background-color: var(--color-gray-700);
-  border-top-color: var(--color-gray-600);
+  color: var(--color-white);
+  border-color: var(--color-white);
+  font-weight: 500;
 }
 
-/* Dark theme for category filtering */
-[data-theme="dark"] .category-info-small:hover {
-  background-color: var(--color-gray-600);
+[data-theme="dark"] .category-edit-small input::placeholder {
+  color: var(--color-gray-400);
 }
 
-[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) {
-  background-color: var(--color-gray-600);
+[data-theme="dark"] .category-edit-small input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  border-color: var(--color-white);
+  background-color: var(--color-gray-700);
 }
 
-[data-theme="dark"] .category-info-small.active-filter {
-  background-color: var(--color-white);
-  color: var(--color-black);
-}
-
-[data-theme="dark"] .category-info-small.active-filter .category-name,
-[data-theme="dark"] .category-info-small.active-filter .category-count-small {
-  color: var(--color-black);
-}
-
-[data-theme="dark"] .show-all-item {
-  border-bottom-color: var(--color-gray-600);
-}
-
-[data-theme="dark"] .show-all-item .category-name {
-  color: var(--color-gray-300);
-}
-
-[data-theme="dark"] .show-all-item .category-info-small.active-filter .category-name {
-  color: var(--color-black);
-}
 
 /* Responsive adjustments for categories dropdown */
 @media (max-width: 768px) {
@@ -1302,41 +1413,8 @@
     justify-content: center;
   }
 }
-/* Additional dark theme text colors */
-[data-theme="dark"] .dropdown-header h4 {
-  color: var(--color-white);
-}
 
-[data-theme="dark"] .category-name {
-  color: var(--color-white);
-}
-
-[data-theme="dark"] .category-count-small {
-  color: var(--color-gray-400);
-}
-
-[data-theme="dark"] .pagination-info-small {
-  color: var(--color-gray-400);
-}
-
-/* Ensure proper scrollbar styling in dark theme */
-[data-theme="dark"] .dropdown-categories::-webkit-scrollbar {
-  width: 6px;
-}
-
-[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-track {
-  background: var(--color-gray-700);
-}
-
-[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-thumb {
-  background: var(--color-gray-600);
-  border-radius: 3px;
-}
-
-[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-500);
-}
-/* Light theme scrollbar styling */
+/* Scrollbar styling for dropdown */
 .dropdown-categories::-webkit-scrollbar {
   width: 6px;
 }
@@ -1352,4 +1430,540 @@
 
 .dropdown-categories::-webkit-scrollbar-thumb:hover {
   background: var(--color-gray-400);
+}
+
+/* Dark theme scrollbar styling */
+[data-theme="dark"] .dropdown-categories::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-track {
+  background: var(--color-gray-800);
+}
+
+[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-thumb {
+  background: var(--color-gray-600);
+  border-radius: 3px;
+}
+
+[data-theme="dark"] .dropdown-categories::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}
+
+/* COMPREHENSIVE DARK MODE FIXES FOR CATEGORIES DROPDOWN */
+
+/* Main dropdown container - force dark background */
+[data-theme="dark"] .categories-dropdown {
+  background-color: var(--color-gray-900) !important;
+  border-color: var(--color-gray-700) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Categories list area - force dark background */
+[data-theme="dark"] .dropdown-categories {
+  background-color: var(--color-gray-900) !important;
+}
+
+/* Individual category items - force dark background and white text */
+[data-theme="dark"] .dropdown-category-item {
+  background-color: var(--color-gray-900) !important;
+  border-bottom-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover {
+  background-color: var(--color-gray-800) !important;
+}
+
+/* Category info containers - ensure proper styling */
+[data-theme="dark"] .category-info-small {
+  background-color: transparent !important;
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .category-info-small:hover {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+}
+
+/* Category names and counts - force white text */
+[data-theme="dark"] .category-name {
+  color: var(--color-white) !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Show All Categories item styling */
+[data-theme="dark"] .show-all-item {
+  background-color: var(--color-gray-900) !important;
+  border-bottom-color: var(--color-gray-700) !important;
+}
+
+[data-theme="dark"] .show-all-item .category-name {
+  color: var(--color-white) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .show-all-item .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Active filter state - white background with black text */
+[data-theme="dark"] .category-info-small.active-filter {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter .category-name {
+  color: var(--color-black) !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter .category-count-small {
+  color: var(--color-gray-600) !important;
+}
+
+/* Hover states for category items */
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) .category-name {
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Action buttons styling */
+[data-theme="dark"] .btn-edit-tiny {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-gray-600) !important;
+}
+
+[data-theme="dark"] .btn-edit-tiny:hover {
+  background-color: var(--color-gray-600) !important;
+  border-color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .btn-delete-tiny {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-gray-400) !important;
+  border-color: var(--color-gray-600) !important;
+}
+
+[data-theme="dark"] .btn-delete-tiny:hover {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+}
+
+/* SVG icons in buttons */
+[data-theme="dark"] .btn-edit-tiny svg,
+[data-theme="dark"] .btn-delete-tiny svg {
+  stroke: currentColor !important;
+}
+
+/* Filter active icon */
+[data-theme="dark"] .filter-active-icon {
+  stroke: currentColor !important;
+}
+/* Enhanced Categories Dropdown Button Dark Theme */
+[data-theme="dark"] .categories-dropdown-btn {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-gray-600) !important;
+}
+
+[data-theme="dark"] .categories-dropdown-btn:hover {
+  background-color: var(--color-gray-700) !important;
+  border-color: var(--color-white) !important;
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .categories-dropdown-btn.filter-active {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .categories-dropdown-btn.filter-active:hover {
+  background-color: var(--color-gray-200) !important;
+  border-color: var(--color-gray-200) !important;
+  color: var(--color-black) !important;
+}
+
+/* Categories dropdown button icons */
+[data-theme="dark"] .categories-dropdown-btn .categories-icon,
+[data-theme="dark"] .categories-dropdown-btn .dropdown-arrow {
+  stroke: currentColor !important;
+}
+
+/* Ensure all text in dropdown button is properly colored */
+[data-theme="dark"] .categories-dropdown-btn * {
+  color: inherit !important;
+}
+
+/* Override any conflicting styles for dropdown content */
+[data-theme="dark"] .categories-dropdown,
+[data-theme="dark"] .categories-dropdown * {
+  box-sizing: border-box;
+}
+
+/* Force dark background for all dropdown sections */
+[data-theme="dark"] .dropdown-header,
+[data-theme="dark"] .dropdown-form,
+[data-theme="dark"] .dropdown-categories,
+[data-theme="dark"] .dropdown-pagination {
+  background-color: var(--color-gray-900) !important;
+}
+
+/* Ensure proper text contrast in all sections */
+[data-theme="dark"] .dropdown-header h4,
+[data-theme="dark"] .pagination-info-small {
+  color: var(--color-white) !important;
+}
+
+/* Input field in add category form */
+[data-theme="dark"] .category-input-group-small input {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-gray-600) !important;
+}
+
+[data-theme="dark"] .category-input-group-small input::placeholder {
+  color: var(--color-gray-500) !important;
+}
+
+[data-theme="dark"] .category-input-group-small input:focus {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Category edit input field */
+[data-theme="dark"] .category-edit-small input {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .category-edit-small input:focus {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Pagination buttons in dropdown */
+[data-theme="dark"] .pagination-btn-small {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-gray-600) !important;
+}
+
+[data-theme="dark"] .pagination-btn-small:hover:not(:disabled) {
+  background-color: var(--color-gray-700) !important;
+  border-color: var(--color-white) !important;
+  color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .pagination-btn-small:disabled {
+  background-color: var(--color-gray-900) !important;
+  border-color: var(--color-gray-800) !important;
+  color: var(--color-gray-600) !important;
+}
+
+/* Add/Save buttons in dropdown */
+[data-theme="dark"] .btn-add-small,
+[data-theme="dark"] .btn-save-small {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+}
+
+[data-theme="dark"] .btn-add-small:hover,
+[data-theme="dark"] .btn-save-small:hover {
+  background-color: var(--color-gray-200) !important;
+  border-color: var(--color-gray-200) !important;
+  color: var(--color-black) !important;
+}
+/* ENHANCED DARK THEME FOR MANAGE CATEGORIES DROPDOWN */
+
+/* Force dark theme for entire dropdown container */
+[data-theme="dark"] .categories-dropdown {
+  background-color: var(--color-gray-900) !important;
+  border: 1px solid var(--color-gray-700) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Header section with title and add button */
+[data-theme="dark"] .dropdown-header {
+  background-color: var(--color-gray-800) !important;
+  border-bottom: 1px solid var(--color-gray-700) !important;
+}
+
+[data-theme="dark"] .dropdown-header h4 {
+  color: var(--color-white) !important;
+  font-weight: 600 !important;
+}
+
+/* Add button in header */
+[data-theme="dark"] .btn-add-small {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border: 1px solid var(--color-white) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .btn-add-small:hover {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-gray-200) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Form section for adding categories */
+[data-theme="dark"] .dropdown-form {
+  background-color: var(--color-gray-800) !important;
+  border-bottom: 1px solid var(--color-gray-700) !important;
+}
+
+/* Save button in form */
+[data-theme="dark"] .btn-save-small {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border: 1px solid var(--color-white) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .btn-save-small:hover {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-gray-200) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Categories list area */
+[data-theme="dark"] .dropdown-categories {
+  background-color: var(--color-gray-900) !important;
+}
+
+/* Individual category items */
+[data-theme="dark"] .dropdown-category-item {
+  background-color: var(--color-gray-900) !important;
+  border-bottom: 1px solid var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover {
+  background-color: var(--color-gray-800) !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:last-child {
+  border-bottom: none !important;
+}
+
+/* ENHANCED EDIT/DELETE BUTTONS */
+[data-theme="dark"] .btn-edit-tiny {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border: 1px solid var(--color-gray-600) !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-theme="dark"] .btn-edit-tiny:hover:not(.disabled) {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .btn-edit-tiny.disabled {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-gray-600) !important;
+  border-color: var(--color-gray-700) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+[data-theme="dark"] .btn-delete-tiny {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-gray-400) !important;
+  border: 1px solid var(--color-gray-600) !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-theme="dark"] .btn-delete-tiny:hover:not(.disabled) {
+  background-color: #dc2626 !important;
+  color: var(--color-white) !important;
+  border-color: #dc2626 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-delete-tiny.disabled {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-gray-600) !important;
+  border-color: var(--color-gray-700) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+/* Button icons */
+[data-theme="dark"] .btn-edit-tiny svg,
+[data-theme="dark"] .btn-delete-tiny svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+}
+
+/* ENHANCED PAGINATION BUTTONS */
+[data-theme="dark"] .dropdown-pagination {
+  background-color: var(--color-gray-800) !important;
+  border-top: 1px solid var(--color-gray-700) !important;
+  padding: 16px 20px !important;
+}
+
+[data-theme="dark"] .pagination-btn-small {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border: 1px solid var(--color-gray-600) !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-theme="dark"] .pagination-btn-small:hover:not(:disabled) {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .pagination-btn-small:disabled {
+  background-color: var(--color-gray-800) !important;
+  color: var(--color-gray-600) !important;
+  border-color: var(--color-gray-700) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+  transform: none !important;
+}
+
+[data-theme="dark"] .pagination-info-small {
+  color: var(--color-white) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+/* Category text styling */
+[data-theme="dark"] .category-name {
+  color: var(--color-white) !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Show All Categories special styling */
+[data-theme="dark"] .show-all-item {
+  background-color: var(--color-gray-900) !important;
+  border-bottom: 2px solid var(--color-gray-700) !important;
+  margin-bottom: 4px !important;
+}
+
+[data-theme="dark"] .show-all-item .category-name {
+  color: var(--color-white) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .show-all-item .category-count-small {
+  color: var(--color-gray-400) !important;
+}
+
+/* Active filter state */
+[data-theme="dark"] .category-info-small.active-filter {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter .category-name {
+  color: var(--color-black) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .category-info-small.active-filter .category-count-small {
+  color: var(--color-gray-600) !important;
+}
+
+/* Hover states */
+[data-theme="dark"] .category-info-small:hover:not(.active-filter) {
+  background-color: var(--color-gray-800) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="dark"] .dropdown-category-item:hover .category-info-small:not(.active-filter) {
+  background-color: var(--color-gray-800) !important;
+}
+
+/* Input field styling */
+[data-theme="dark"] .category-input-group-small input {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border: 1px solid var(--color-gray-600) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="dark"] .category-input-group-small input::placeholder {
+  color: var(--color-gray-500) !important;
+}
+
+[data-theme="dark"] .category-input-group-small input:focus {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Category edit input */
+[data-theme="dark"] .category-edit-small input {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border: 1px solid var(--color-white) !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] .category-edit-small input:focus {
+  background-color: var(--color-gray-700) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
 }

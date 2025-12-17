@@ -143,6 +143,18 @@ class User {
     const results = await query(sql, params);
     return results.map(user => User.mapUser(user));
   }
+
+  static async getAllUsers() {
+    const sql = 'SELECT id, email, name, role, phone, address, profile_photo, theme_preference, created_at, updated_at FROM users ORDER BY created_at DESC';
+    const results = await query(sql);
+    return results.map(user => User.mapUser(user));
+  }
+
+  static async deleteUser(id) {
+    const sql = 'DELETE FROM users WHERE id = ?';
+    await query(sql, [id]);
+    return true;
+  }
 }
 
 module.exports = User;

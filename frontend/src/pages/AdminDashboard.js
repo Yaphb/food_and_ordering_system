@@ -49,7 +49,6 @@ const AdminDashboard = () => {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
-  const [activeTab, setActiveTab] = useState('menu'); // 'menu' or 'categories'
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [categoryPage, setCategoryPage] = useState(1);
   const categoriesPerPage = 3;
@@ -255,6 +254,8 @@ const AdminDashboard = () => {
     setShowCategoryForm(false);
   };
 
+
+
   // Category pagination logic
   const totalCategoryPages = Math.ceil(categories.length / categoriesPerPage);
   const startCategoryIndex = (categoryPage - 1) * categoriesPerPage;
@@ -352,10 +353,12 @@ const AdminDashboard = () => {
     setCurrentPage(1);
   }, [searchTerm, filterCategory, filterAvailability]);
 
+
+
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h2>Admin Dashboard</h2>
+        <h2>Menu Management</h2>
         
         {/* Categories Dropdown Button */}
         <div className="categories-dropdown-container">
@@ -536,18 +539,17 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
-
-      <button onClick={() => {
-        if (showForm) {
-          // Cancel - reset everything
-          resetForm();
-        } else {
-          // Add New Item - ensure clean form
-          handleAddNewItem();
-        }
-      }} className="btn-primary">
-        {showForm ? 'Cancel' : 'Add New Item'}
-      </button>
+          <button onClick={() => {
+            if (showForm) {
+              // Cancel - reset everything
+              resetForm();
+            } else {
+              // Add New Item - ensure clean form
+              handleAddNewItem();
+            }
+          }} className="btn-primary">
+            {showForm ? 'Cancel' : 'Add New Item'}
+          </button>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="admin-form">

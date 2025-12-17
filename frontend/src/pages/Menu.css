@@ -851,61 +851,68 @@
   color: var(--color-black);
 }
 
-/* Dark theme support for compact filter bar */
+/* Enhanced Dark theme support for compact filter bar */
 [data-theme="dark"] .compact-filter-bar {
-  background-color: var(--color-gray-800);
-  border-color: var(--color-gray-600);
+  background-color: #171717;
+  border-color: #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .compact-search-input {
-  background-color: var(--color-gray-700);
-  border-color: var(--color-gray-600);
-  color: var(--color-white);
+  background-color: #1f1f1f;
+  border-color: #404040;
+  color: #ffffff;
 }
 
 [data-theme="dark"] .compact-search-input:focus {
-  border-color: var(--color-white);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .compact-search-input::placeholder {
-  color: var(--color-gray-400);
+  color: #737373;
+  opacity: 1;
 }
 
 [data-theme="dark"] .search-icon {
-  color: var(--color-gray-400);
+  color: #737373;
 }
 
 [data-theme="dark"] .clear-search {
-  color: var(--color-gray-400);
+  color: #737373;
 }
 
 [data-theme="dark"] .clear-search:hover {
-  color: var(--color-white);
-  background-color: var(--color-gray-600);
+  color: #ffffff;
+  background-color: #404040;
 }
 
 [data-theme="dark"] .compact-select {
-  background-color: var(--color-gray-700);
-  border-color: var(--color-gray-600);
-  color: var(--color-white);
+  background-color: #1f1f1f;
+  border-color: #404040;
+  color: #ffffff;
 }
 
 [data-theme="dark"] .compact-select:focus {
-  border-color: var(--color-white);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .compact-select option {
+  background-color: #1f1f1f;
+  color: #ffffff;
 }
 
 [data-theme="dark"] .clear-filters-btn {
-  background-color: var(--color-gray-700);
-  color: var(--color-gray-400);
-  border-color: var(--color-gray-600);
+  background-color: #2a2a2a;
+  color: #737373;
+  border-color: #404040;
 }
 
 [data-theme="dark"] .clear-filters-btn:hover {
-  background-color: var(--color-gray-600);
-  border-color: var(--color-white);
-  color: var(--color-white);
+  background-color: #333333;
+  border-color: #525252;
+  color: #ffffff;
 }
 
 /* Responsive adjustments for compact filter bar */
@@ -929,5 +936,203 @@
   
   .clear-filters-btn {
     order: 3;
+  }
+}
+/* Enhanced Dark Mode for Menu Page */
+[data-theme="dark"] .menu-container {
+  background-color: transparent;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .menu-container h1 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .menu-item {
+  background-color: #171717;
+  border-color: #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .menu-item:hover {
+  border-color: #525252;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .menu-item h3 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .menu-item p {
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .item-footer {
+  border-top-color: #333333;
+}
+
+[data-theme="dark"] .price {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .btn-add {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .btn-add:hover {
+  background-color: #333333;
+  border-color: #525252;
+}
+
+[data-theme="dark"] .no-results p {
+  color: #737373;
+}
+
+[data-theme="dark"] .pagination-btn {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background-color: #333333;
+  border-color: #525252;
+}
+
+[data-theme="dark"] .pagination-number {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .pagination-number:hover {
+  background-color: #333333;
+  border-color: #525252;
+}
+
+[data-theme="dark"] .pagination-number.active {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+/* Enhanced overlay dark mode */
+[data-theme="dark"] .overlay-details h2 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .overlay-category {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .overlay-category:hover {
+  background-color: #333333;
+}
+
+[data-theme="dark"] .overlay-description {
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .overlay-footer {
+  border-top-color: #404040;
+}
+
+[data-theme="dark"] .overlay-price {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .btn-add-overlay {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .btn-add-overlay:hover {
+  background-color: #333333;
+  border-color: #525252;
+}
+
+/* Auto theme support for Menu */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .menu-container h1 {
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .compact-filter-bar {
+    background-color: #171717;
+    border-color: #404040;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  [data-theme="auto"] .compact-search-input {
+    background-color: #1f1f1f;
+    border-color: #404040;
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .compact-search-input::placeholder {
+    color: #737373;
+  }
+  
+  [data-theme="auto"] .search-icon {
+    color: #737373;
+  }
+  
+  [data-theme="auto"] .clear-search {
+    color: #737373;
+  }
+  
+  [data-theme="auto"] .clear-search:hover {
+    color: #ffffff;
+    background-color: #404040;
+  }
+  
+  [data-theme="auto"] .compact-select {
+    background-color: #1f1f1f;
+    border-color: #404040;
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .compact-select option {
+    background-color: #1f1f1f;
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .clear-filters-btn {
+    background-color: #2a2a2a;
+    color: #737373;
+    border-color: #404040;
+  }
+  
+  [data-theme="auto"] .clear-filters-btn:hover {
+    background-color: #333333;
+    border-color: #525252;
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .menu-item {
+    background-color: #171717;
+    border-color: #404040;
+  }
+  
+  [data-theme="auto"] .menu-item h3 {
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .menu-item p {
+    color: #a3a3a3;
+  }
+  
+  [data-theme="auto"] .price {
+    color: #ffffff;
+  }
+  
+  [data-theme="auto"] .btn-add {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border-color: #404040;
   }
 }

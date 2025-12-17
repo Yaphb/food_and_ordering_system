@@ -14,6 +14,7 @@
     "create-admin": "node scripts/createAdminMySQL.js",
     "create-admin-dynamodb": "node scripts/createAdmin.js",
     "test-rds": "node test-rds-simple.js",
+    "test-endpoints": "node test-endpoints.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

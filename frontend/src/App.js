@@ -14,6 +14,7 @@ import Orders from './pages/Orders';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import StaffDashboard from './pages/StaffDashboard';
+import UserDashboard from './pages/UserDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -92,6 +93,7 @@ function App() {
                 <Route path="/profile" element={<PageTransition><ProtectedRoute><Profile /></ProtectedRoute></PageTransition>} />
                 <Route path="/admin" element={<PageTransition><ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute></PageTransition>} />
                 <Route path="/staff" element={<PageTransition><ProtectedRoute roles={['staff', 'admin']}><StaffDashboard /></ProtectedRoute></PageTransition>} />
+                <Route path="/users" element={<PageTransition><ProtectedRoute roles={['admin']}><UserDashboard /></ProtectedRoute></PageTransition>} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
