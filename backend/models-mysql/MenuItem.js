@@ -14,7 +14,7 @@ class MenuItem {
       description,
       parseFloat(price),
       category,
-      image || 'https://via.placeholder.com/300x200',
+      image || 'https://via.placeholder.com/300x200', // Handle default in code
       available
     ]);
     

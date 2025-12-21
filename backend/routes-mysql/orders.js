@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models-mysql/Order');
 const { auth, authorize } = require('../middleware/auth-mysql');
+const emailService = require('../services/emailService');
 
 router.post('/', auth, async (req, res) => {
   try {
@@ -42,6 +43,15 @@ router.post('/', auth, async (req, res) => {
       phone,
       notes
     });
+
+    // Send email receipt to customer
+    try {
+      await emailService.sendOrderReceipt(order);
+      console.log(`Order receipt sent to ${order.user.email} for order #${order.id}`);
+    } catch (emailError) {
+      console.error('Failed to send order receipt email:', emailError.message);
+      // Don't fail the order creation if email fails
+    }
 
     res.status(201).json(order);
   } catch (error) {
@@ -90,6 +100,15 @@ router.patch('/:id/status', auth, authorize('staff', 'admin'), async (req, res) 
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Send status update email to customer
+    try {
+      await emailService.sendOrderStatusUpdate(order, status);
+      console.log(`Status update email sent to ${order.user.email} for order #${order.id}`);
+    } catch (emailError) {
+      console.error('Failed to send status update email:', emailError.message);
+      // Don't fail the status update if email fails
     }
 
     res.json(order);

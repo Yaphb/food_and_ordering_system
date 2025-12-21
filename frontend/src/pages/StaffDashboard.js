@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ToastContext } from '../context/ToastContext';
+import { useToast } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './StaffDashboard.css';
 
@@ -13,7 +13,7 @@ const StaffDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
-  const { showToast } = useContext(ToastContext);
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchOrders();
@@ -36,6 +36,7 @@ const StaffDashboard = () => {
     try {
       await axios.patch(`${API_URL}/api/orders/${orderId}/status`, { status });
       showToast(`Order status updated to ${status}`, 'success');
+      showToast('Email notification sent to customer 📧', 'info');
       fetchOrders();
     } catch (error) {
       showToast('Failed to update order status', 'error');

@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
-import { ToastContext } from '../context/ToastContext';
+import { useToast } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './Cart.css';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, getTotal, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
-  const { showToast } = useContext(ToastContext);
+  const { showToast } = useToast();
   const [deliveryType, setDeliveryType] = useState('pickup'); // 'pickup' or 'delivery'
   const [orderData, setOrderData] = useState({
     deliveryAddress: user?.address || '',
@@ -59,6 +59,7 @@ const Cart = () => {
 
       clearCart();
       showToast('Order placed successfully! 🎉', 'success');
+      showToast('Email receipt sent to your registered email address 📧', 'info');
       setTimeout(() => navigate('/orders'), 1000);
     } catch (error) {
       showToast('Failed to place order: ' + (error.response?.data?.message || error.message), 'error');

@@ -930,8 +930,8 @@ const AdminDashboard = () => {
           </thead>
           <tbody>
             {paginatedItems.length > 0 ? (
-              paginatedItems.map(item => {
-                const uniqueKey = item.id || item._id || `item-${item.name}-${item.category}`;
+              paginatedItems.map((item, index) => {
+                const uniqueKey = item.id || item._id || `item-${index}-${item.name?.replace(/\s+/g, '-')}-${item.category}`;
                 return (
                   <tr key={uniqueKey}>
                     <td>

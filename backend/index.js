@@ -23,6 +23,10 @@ const orderRoutes = DB_TYPE === 'mysql'
   ? require('./routes-mysql/orders')
   : require('./routes/orders');
 
+const emailRoutes = DB_TYPE === 'mysql'
+  ? require('./routes-mysql/email')
+  : null;
+
 const app = express();
 
 // Middleware
@@ -45,6 +49,11 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
+
+// Add email routes for MySQL setup
+if (emailRoutes) {
+  app.use('/api/email', emailRoutes);
+}
 
 // Error handling
 app.use((err, req, res, next) => {

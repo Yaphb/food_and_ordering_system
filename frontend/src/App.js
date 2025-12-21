@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Snowfall from 'react-snowfall';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
@@ -81,6 +82,18 @@ function App() {
         <ToastProvider>
           <Router>
             <div className="App">
+              {/* Snowfall effect for all views */}
+              <Snowfall 
+                color="#82C3D9"
+                snowflakeCount={100}
+                style={{
+                  position: 'fixed',
+                  width: '100vw',
+                  height: '100vh',
+                  zIndex: 1000,
+                  pointerEvents: 'none'
+                }}
+              />
               <Navbar />
               <ScrollToTop />
               <Routes>

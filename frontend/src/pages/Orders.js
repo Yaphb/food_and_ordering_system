@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
+import { useToast } from '../context/ToastContext';
 import './Orders.css';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [resendingReceipt, setResendingReceipt] = useState(null);
+  const { showToast } = useToast();
   
   // Search, Filter, and Pagination states
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +29,22 @@ const Orders = () => {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resendReceipt = async (orderId) => {
+    setResendingReceipt(orderId);
+    try {
+      const response = await axios.post(`${API_URL}/api/email/resend-receipt/${orderId}`);
+      showToast('Email receipt sent successfully!', 'success');
+    } catch (error) {
+      console.error('Error resending receipt:', error);
+      showToast(
+        error.response?.data?.message || 'Failed to send email receipt', 
+        'error'
+      );
+    } finally {
+      setResendingReceipt(null);
     }
   };
 
@@ -169,6 +188,7 @@ const Orders = () => {
           <div key={order.id || order._id} className="order-card">
             <div className="order-header">
               <div className="order-info">
+                <span className="order-id">Order #{order.id || order._id}</span>
                 <span className="order-date">{new Date(order.createdAt).toLocaleDateString('en-MY', { 
                   year: 'numeric', 
                   month: 'long', 
@@ -238,8 +258,31 @@ const Orders = () => {
                   <div><strong>Notes:</strong> {order.notes}</div>
                 )}
               </div>
-              <div className="order-total">
-                <strong>Total:</strong> <span className="total-amount">RM{parseFloat(order.totalPrice).toFixed(2)}</span>
+              <div className="order-actions">
+                <div className="order-total">
+                  <strong>Total:</strong> <span className="total-amount">RM{parseFloat(order.totalPrice).toFixed(2)}</span>
+                </div>
+                <button
+                  onClick={() => resendReceipt(order.id)}
+                  disabled={resendingReceipt === order.id}
+                  className="resend-receipt-btn"
+                  title="Resend email receipt"
+                >
+                  {resendingReceipt === order.id ? (
+                    <>
+                      <div className="btn-spinner"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      Resend Receipt
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
