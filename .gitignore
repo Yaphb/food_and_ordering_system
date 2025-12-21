@@ -37,8 +37,3 @@ lerna-debug.log*
 xampp/
 mysql/
 .env.example
-
-# Database
-*.sql
-!database/schema.sql
-!database/seed.sql
