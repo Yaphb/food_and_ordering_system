@@ -41,7 +41,7 @@ const AdminDashboard = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterAvailability, setFilterAvailability] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 6;
   const { showToast } = useContext(ToastContext);
 
   // Category management states
@@ -56,6 +56,26 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchMenuItems();
   }, []);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showForm) {
+        resetForm();
+      }
+    };
+
+    if (showForm) {
+      document.addEventListener('keydown', handleEscapeKey);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showForm]);
 
   const fetchCategories = async () => {
     try {
@@ -81,16 +101,38 @@ const AdminDashboard = () => {
 
   const fetchMenuItems = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/menu`);
-      // Ensure price is a number
-      const items = response.data.map(item => ({
-        ...item,
-        price: parseFloat(item.price)
-      }));
-      setMenuItems(items);
+      const response = await axios.get(`${API_URL}/api/menu?includeUnavailable=true`);
+      
+      // Ensure price is a number and normalize boolean values
+      const items = response.data.map(item => {
+        // Handle different boolean representations (true/false, 1/0, "true"/"false")
+        let available;
+        if (typeof item.available === 'boolean') {
+          available = item.available;
+        } else if (typeof item.available === 'number') {
+          available = item.available === 1; // 1 = true (available), 0 = false (unavailable)
+        } else if (typeof item.available === 'string') {
+          available = item.available.toLowerCase() === 'true' || item.available === '1';
+        } else {
+          available = Boolean(item.available);
+        }
+        
+        return {
+          ...item,
+          price: parseFloat(item.price),
+          available: available
+        };
+      });
+      
+      // Remove duplicates based on ID
+      const uniqueItems = items.filter((item, index, self) => 
+        index === self.findIndex(i => (i.id || i._id) === (item.id || item._id))
+      );
+      
+      setMenuItems(uniqueItems);
       
       // Extract categories from menu items as a fallback
-      const categories = [...new Set(items.map(item => item.category))];
+      const categories = [...new Set(uniqueItems.map(item => item.category))];
       const sortedCategories = categories.sort((a, b) => {
         if (a === 'none') return -1;
         if (b === 'none') return 1;
@@ -105,18 +147,53 @@ const AdminDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate image size if it's base64
+      if (formData.image && formData.image.startsWith('data:')) {
+        const imageSizeInBytes = (formData.image.length * 3) / 4;
+        const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
+        
+        if (imageSizeInMB > 10) {
+          showToast('Image is too large. Please use an image smaller than 10MB or provide an image URL instead.', 'error');
+          return;
+        }
+      }
+
+      // Ensure boolean values are properly formatted
+      const submitData = {
+        ...formData,
+        available: Boolean(formData.available), // Ensure it's a proper boolean
+        price: parseFloat(formData.price) // Ensure price is a number
+      };
+
       const itemId = editingItem?.id || editingItem?._id;
+      let updatedItem;
+      
       if (editingItem) {
-        await axios.put(`${API_URL}/api/menu/${itemId}`, formData);
+        const response = await axios.put(`${API_URL}/api/menu/${itemId}`, submitData);
+        updatedItem = response.data;
         showToast('Menu item updated successfully!', 'success');
       } else {
-        await axios.post(`${API_URL}/api/menu`, formData);
+        const response = await axios.post(`${API_URL}/api/menu`, submitData);
+        updatedItem = response.data;
         showToast('Menu item created successfully!', 'success');
       }
-      fetchMenuItems(); // This will also refresh categories
+      
       resetForm();
+      
+      // Always refetch to ensure data consistency
+      setTimeout(() => {
+        fetchMenuItems();
+      }, 300);
+      
     } catch (error) {
-      showToast('Error saving menu item: ' + (error.response?.data?.message || error.message), 'error');
+      console.error('Error saving menu item:', error);
+      if (error.response?.status === 413) {
+        showToast('Image is too large. Please use a smaller image or provide an image URL instead.', 'error');
+      } else if (error.response?.data?.message?.includes('too long')) {
+        showToast('Image data is too large for the database. Please use a smaller image or provide an image URL instead.', 'error');
+      } else {
+        showToast('Error saving menu item: ' + (error.response?.data?.message || error.message), 'error');
+      }
     }
   };
 
@@ -128,6 +205,14 @@ const AdminDashboard = () => {
     });
     setImagePreview(item.image || '');
     setShowForm(true);
+    
+    // Focus the modal after it's rendered
+    setTimeout(() => {
+      const modal = document.querySelector('.modal-container');
+      if (modal) {
+        modal.focus();
+      }
+    }, 100);
   };
 
   const handleDelete = async (id) => {
@@ -162,6 +247,14 @@ const AdminDashboard = () => {
   const handleAddNewItem = () => {
     resetForm(); // Clear any existing data
     setShowForm(true); // Show the form
+    
+    // Focus the modal after it's rendered
+    setTimeout(() => {
+      const modal = document.querySelector('.modal-container');
+      if (modal) {
+        modal.focus();
+      }
+    }, 100);
   };
 
   // Category management functions
@@ -285,9 +378,21 @@ const AdminDashboard = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result;
+        
+        // Check if the base64 string is reasonable size
+        const imageSizeInBytes = (base64String.length * 3) / 4;
+        const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
+        
+        if (imageSizeInMB > 10) {
+          showToast('Image is too large after processing. Please use a smaller image.', 'error');
+          setUploadingImage(false);
+          return;
+        }
+        
         setImagePreview(base64String);
         setFormData(prev => ({ ...prev, image: base64String }));
         setUploadingImage(false);
+        showToast('Image uploaded successfully!', 'success');
       };
       reader.onerror = () => {
         showToast('Failed to read file', 'error');
@@ -338,8 +443,9 @@ const AdminDashboard = () => {
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
     const matchesAvailability = filterAvailability === 'all' || 
-                               (filterAvailability === 'available' && item.available) ||
-                               (filterAvailability === 'unavailable' && !item.available);
+                               (filterAvailability === 'available' && item.available === true) ||
+                               (filterAvailability === 'unavailable' && item.available === false);
+    
     return matchesSearch && matchesCategory && matchesAvailability;
   });
 
@@ -548,137 +654,231 @@ const AdminDashboard = () => {
               handleAddNewItem();
             }
           }} className="btn-primary">
-            {showForm ? 'Cancel' : 'Add New Item'}
+            {showForm ? (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="btn-icon">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Close
+              </>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="btn-icon">
+                  <path d="M12 5v14m-7-7h14"/>
+                </svg>
+                Add New Item
+              </>
+            )}
           </button>
 
+      {/* Glassmorphism Modal Overlay */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="admin-form">
-          <h3>{editingItem ? 'Edit Item' : 'Add New Item'}</h3>
-          <input
-            type="text"
-            placeholder="Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <textarea
-            placeholder="Description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Price"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            required
-          />
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {getCategoryDisplayName(category)}
-              </option>
-            ))}
-          </select>
-          
-          {/* Image Upload Section */}
-          <div className="image-upload-section">
-            <label>Menu Item Image</label>
+        <div 
+          className="modal-overlay" 
+          onClick={(e) => e.target === e.currentTarget && resetForm()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
+          <div className="modal-container" tabIndex="-1">
+            <div className="modal-header">
+              <h3 id="modal-title">{editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}</h3>
+              <button 
+                type="button" 
+                className="modal-close-btn"
+                onClick={resetForm}
+                aria-label="Close modal"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
             
-            {/* Image Preview */}
-            {imagePreview && (
-              <div className="image-preview-container">
-                <img src={imagePreview} alt="Preview" className="image-preview" />
-                <button 
-                  type="button" 
-                  onClick={handleRemoveImage}
-                  className="remove-image-btn"
-                  title="Remove image"
-                >
-                  ×
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="item-name">Item Name</label>
+                  <input
+                    id="item-name"
+                    type="text"
+                    placeholder="Enter item name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="item-price">Price (RM)</label>
+                  <input
+                    id="item-price"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="item-description">Description</label>
+                  <textarea
+                    id="item-description"
+                    placeholder="Enter item description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="item-category">Category</label>
+                  <select
+                    id="item-category"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    {categories.map(category => (
+                      <option key={category} value={category}>
+                        {getCategoryDisplayName(category)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.available}
+                      onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
+                    />
+                    <span className="checkbox-text">Available for order</span>
+                  </label>
+                </div>
+
+                {/* Image Upload Section */}
+                <div className="form-group full-width">
+                  <label>Menu Item Image</label>
+                  
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="image-preview-container">
+                      <img src={imagePreview} alt="Preview" className="image-preview" />
+                      <button 
+                        type="button" 
+                        onClick={handleRemoveImage}
+                        className="remove-image-btn"
+                        title="Remove image"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upload Options */}
+                  <div className="upload-options">
+                    {/* Drag and Drop Area */}
+                    <div 
+                      className={`drag-drop-area ${dragActive ? 'drag-active' : ''} ${uploadingImage ? 'uploading' : ''}`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('file-upload').click()}
+                    >
+                      {uploadingImage ? (
+                        <div className="upload-loader">
+                          <div className="spinner"></div>
+                          <p>Uploading...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="drag-drop-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                              <circle cx="8.5" cy="8.5" r="1.5"/>
+                              <polyline points="21,15 16,10 5,21"/>
+                            </svg>
+                          </div>
+                          <p>Drag and drop an image here</p>
+                          <p className="drag-drop-or">or</p>
+                          <label htmlFor="file-upload" className="file-upload-btn" onClick={(e) => e.stopPropagation()}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="upload-icon">
+                              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                              <polyline points="7,10 12,15 17,10"/>
+                              <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Choose File
+                          </label>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileInputChange}
+                            style={{ display: 'none' }}
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    {/* URL Input Option */}
+                    <div className="url-input-section">
+                      <p className="url-option-text">Or enter image URL:</p>
+                      <input
+                        type="url"
+                        placeholder="https://example.com/image.jpg"
+                        value={formData.image && !formData.image.startsWith('data:') ? formData.image : ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          if (url) {
+                            // Basic URL validation
+                            try {
+                              new URL(url);
+                              setFormData({ ...formData, image: url });
+                              setImagePreview(url);
+                            } catch {
+                              // Invalid URL, but still allow typing
+                              setFormData({ ...formData, image: url });
+                              setImagePreview('');
+                            }
+                          } else {
+                            setFormData({ ...formData, image: '' });
+                            setImagePreview('');
+                          }
+                        }}
+                        className="url-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={resetForm}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="btn-icon">
+                    {editingItem ? (
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    ) : (
+                      <path d="M12 5v14m-7-7h14"/>
+                    )}
+                  </svg>
+                  {editingItem ? 'Update Item' : 'Create Item'}
                 </button>
               </div>
-            )}
-
-            {/* Upload Options */}
-            <div className="upload-options">
-              {/* Drag and Drop Area */}
-              <div 
-                className={`drag-drop-area ${dragActive ? 'drag-active' : ''} ${uploadingImage ? 'uploading' : ''}`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                {uploadingImage ? (
-                  <div className="upload-loader">
-                    <div className="spinner"></div>
-                    <p>Uploading...</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="drag-drop-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21,15 16,10 5,21"/>
-                      </svg>
-                    </div>
-                    <p>Drag and drop an image here</p>
-                    <p className="drag-drop-or">or</p>
-                    <label htmlFor="file-upload" className="file-upload-btn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="upload-icon">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7,10 12,15 17,10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                      </svg>
-                      Choose File
-                    </label>
-                    <input
-                      id="file-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileInputChange}
-                      style={{ display: 'none' }}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* URL Input Option */}
-              <div className="url-input-section">
-                <p className="url-option-text">Or enter image URL:</p>
-                <input
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.image && !formData.image.startsWith('data:') ? formData.image : ''}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    setFormData({ ...formData, image: url });
-                    setImagePreview(url);
-                  }}
-                  className="url-input"
-                />
-              </div>
-            </div>
+            </form>
           </div>
-          <label>
-            <input
-              type="checkbox"
-              checked={formData.available}
-              onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
-            />
-            Available
-          </label>
-          <button type="submit" className="btn-primary">
-            {editingItem ? 'Update' : 'Create'}
-          </button>
-        </form>
+        </div>
       )}
 
       <div className="admin-items">
@@ -720,6 +920,7 @@ const AdminDashboard = () => {
         <table>
           <thead>
             <tr>
+              <th>Image</th>
               <th>Name</th>
               <th>Category</th>
               <th>Price</th>
@@ -729,21 +930,52 @@ const AdminDashboard = () => {
           </thead>
           <tbody>
             {paginatedItems.length > 0 ? (
-              paginatedItems.map(item => (
-                <tr key={item.id || item._id}>
-                  <td>{item.name}</td>
-                  <td>{capitalizeCategory(item.category)}</td>
-                  <td>RM{parseFloat(item.price).toFixed(2)}</td>
-                  <td>{item.available ? '✓' : '✗'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(item)} className="btn-edit">Edit</button>
-                    <button onClick={() => handleDelete(item.id || item._id)} className="btn-delete">Delete</button>
-                  </td>
-                </tr>
-              ))
+              paginatedItems.map(item => {
+                const uniqueKey = item.id || item._id || `item-${item.name}-${item.category}`;
+                return (
+                  <tr key={uniqueKey}>
+                    <td>
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="table-item-image"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : (
+                        <div className="no-image-placeholder">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21,15 16,10 5,21"/>
+                          </svg>
+                        </div>
+                      )}
+                      <div className="image-error-placeholder" style={{ display: 'none' }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                          <polyline points="17,8 12,3 7,8"/>
+                          <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                      </div>
+                    </td>
+                    <td>{item.name}</td>
+                    <td>{capitalizeCategory(item.category)}</td>
+                    <td>RM{parseFloat(item.price).toFixed(2)}</td>
+                    <td>{item.available ? '✓' : '✗'}</td>
+                    <td>
+                      <button onClick={() => handleEdit(item)} className="btn-edit">Edit</button>
+                      <button onClick={() => handleDelete(item.id || item._id)} className="btn-delete">Delete</button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center' }}>No items found</td>
+                <td colSpan="6" style={{ textAlign: 'center' }}>No items found</td>
               </tr>
             )}
           </tbody>
@@ -752,22 +984,122 @@ const AdminDashboard = () => {
         {totalPages > 1 && (
           <div className="pagination">
             <button 
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="pagination-btn pagination-btn-first"
+              title="First page"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pagination-icon">
+                <polyline points="11,17 6,12 11,7"/>
+                <polyline points="18,17 13,12 18,7"/>
+              </svg>
+            </button>
+            
+            <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="pagination-btn"
+              title="Previous page"
             >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pagination-icon">
+                <polyline points="15,18 9,12 15,6"/>
+              </svg>
               Previous
             </button>
-            <span className="pagination-info">
-              Page {currentPage} of {totalPages}
-            </span>
+            
+            <div className="pagination-pages">
+              {(() => {
+                const pages = [];
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                // Adjust start page if we're near the end
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                // Add first page and ellipsis if needed
+                if (startPage > 1) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => setCurrentPage(1)}
+                      className="pagination-page-btn"
+                    >
+                      1
+                    </button>
+                  );
+                  if (startPage > 2) {
+                    pages.push(<span key="start-ellipsis" className="pagination-ellipsis">...</span>);
+                  }
+                }
+                
+                // Add visible page numbers
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`pagination-page-btn ${currentPage === i ? 'active' : ''}`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                
+                // Add ellipsis and last page if needed
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pages.push(<span key="end-ellipsis" className="pagination-ellipsis">...</span>);
+                  }
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="pagination-page-btn"
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+                
+                return pages;
+              })()}
+            </div>
+            
             <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="pagination-btn"
+              title="Next page"
             >
               Next
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pagination-icon">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
             </button>
+            
+            <button 
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn pagination-btn-last"
+              title="Last page"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pagination-icon">
+                <polyline points="13,17 18,12 13,7"/>
+                <polyline points="6,17 11,12 6,7"/>
+              </svg>
+            </button>
+            
+            <div className="pagination-info">
+              <span className="pagination-summary">
+                Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredItems.length)} of {filteredItems.length} items
+              </span>
+              <span className="pagination-page-info">
+                Page {currentPage} of {totalPages}
+              </span>
+            </div>
           </div>
         )}
       </div>

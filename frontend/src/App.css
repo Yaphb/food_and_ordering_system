@@ -32,8 +32,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   text-decoration: none;
   white-space: nowrap;
+}
+
+.btn-primary .btn-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
 }
 
 .btn-primary:hover {
@@ -59,9 +66,10 @@
 
 /* Dark theme for primary button */
 [data-theme="dark"] .btn-primary {
-  background-color: var(--color-white);
+  background-color: var(--admin-surface);
   color: var(--color-black);
-  border-color: var(--color-white);
+  border: 2px solid #333333;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .btn-primary:hover {

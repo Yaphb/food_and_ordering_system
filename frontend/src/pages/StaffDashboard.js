@@ -73,7 +73,7 @@ const StaffDashboard = () => {
 
   return (
     <div className="staff-container">
-      <h2>Staff Dashboard - Order Management</h2>
+      <h2>Order Management</h2>
       
       <div className="filters-container">
         <input

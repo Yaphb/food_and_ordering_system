@@ -376,7 +376,7 @@
 }
 
 [data-theme="dark"] .users-section {
-  background-color: #171717;
+  background-color: var(--admin-surface);
   border-color: #404040;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }

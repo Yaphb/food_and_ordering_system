@@ -39,8 +39,8 @@ const Navbar = () => {
               )}
               {user.role === 'admin' && (
                 <>
-                  <li><Link to="/admin" className={isActive('/admin') ? 'active' : ''}>Menu</Link></li>
-                  <li><Link to="/staff" className={isActive('/staff') ? 'active' : ''}>Staff</Link></li>
+                  <li><Link to="/admin" className={isActive('/admin') ? 'active' : ''}>Manage</Link></li>
+                  <li><Link to="/staff" className={isActive('/staff') ? 'active' : ''}>Orders</Link></li>
                   <li><Link to="/users" className={isActive('/users') ? 'active' : ''}>Users</Link></li>
                 </>
               )}

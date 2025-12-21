@@ -7,7 +7,8 @@ const { auth, authorize } = require('../middleware/auth-mysql');
 router.get('/categories', async (req, res) => {
   try {
     console.log('Categories endpoint called (MySQL)');
-    const menuItems = await MenuItem.findAll();
+    // Get all menu items including unavailable ones for admin purposes
+    const menuItems = await MenuItem.findAll({});
     console.log('Menu items found:', menuItems.length);
     
     const categories = [...new Set(menuItems.map(item => item.category))];
@@ -30,8 +31,14 @@ router.get('/categories', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { category } = req.query;
-    const filters = { available: true };
+    const { category, includeUnavailable } = req.query;
+    const filters = {};
+    
+    // Only filter by availability if includeUnavailable is not set to 'true'
+    if (includeUnavailable !== 'true') {
+      filters.available = true;
+    }
+    
     if (category) {
       filters.category = category;
     }

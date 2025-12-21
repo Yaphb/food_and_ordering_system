@@ -30,7 +30,8 @@ class MenuItem {
       params.push(filters.category);
     }
 
-    if (filters.available !== undefined) {
+    // Only add available filter if it's explicitly set
+    if (filters.hasOwnProperty('available')) {
       sql += ' AND available = ?';
       params.push(filters.available);
     }
@@ -39,10 +40,11 @@ class MenuItem {
 
     const results = await query(sql, params);
     
-    // Convert price to number
+    // Convert price to number and ensure available is proper boolean
     return results.map(item => ({
       ...item,
-      price: parseFloat(item.price)
+      price: parseFloat(item.price),
+      available: Boolean(item.available) // Ensure it's a boolean
     }));
   }
 

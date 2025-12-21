@@ -39,7 +39,8 @@ class MenuItem {
         ':category': filters.category
       };
       
-      if (filters.available !== undefined) {
+      // Only add available filter if it's explicitly set
+      if (filters.hasOwnProperty('available')) {
         params.FilterExpression = 'available = :available';
         params.ExpressionAttributeValues[':available'] = filters.available;
       }
@@ -49,7 +50,8 @@ class MenuItem {
     }
 
     // Scan for all items
-    if (filters.available !== undefined) {
+    // Only add available filter if it's explicitly set
+    if (filters.hasOwnProperty('available')) {
       params.FilterExpression = 'available = :available';
       params.ExpressionAttributeValues = {
         ':available': filters.available

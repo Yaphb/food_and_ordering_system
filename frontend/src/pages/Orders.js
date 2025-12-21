@@ -80,8 +80,14 @@ const Orders = () => {
   if (orders.length === 0) {
     return (
       <div className="orders-container">
-        <h2>No orders yet</h2>
-        <p>Start ordering from our menu!</p>
+        <div className="empty-orders">
+          <div className="empty-orders-content">
+            <div className="empty-icon">🍽️</div>
+            <h2>No orders yet</h2>
+            <p>Start ordering from our menu!</p>
+            <a href="/menu" className="btn-primary">Browse Menu</a>
+          </div>
+        </div>
       </div>
     );
   }
@@ -142,7 +148,15 @@ const Orders = () => {
 
       {filteredOrders.length === 0 ? (
         <div className="no-orders">
-          <p>No orders found matching your criteria.</p>
+          <div className="no-orders-content">
+            <div className="empty-icon">🔍</div>
+            <p>No orders found matching your criteria.</p>
+            <button onClick={() => {
+              setSearchTerm('');
+              setFilterStatus('all');
+              setFilterType('all');
+            }} className="btn-secondary">Clear Filters</button>
+          </div>
         </div>
       ) : (
         <>
@@ -170,7 +184,17 @@ const Orders = () => {
             <div className="order-items">
               {order.items.map((item, index) => (
                 <div key={index} className="order-item">
-                  <span className="item-name">{item.menuItem?.name || 'Item'} <span className="item-qty">x{item.quantity}</span></span>
+                  <div className="item-info">
+                    {item.menuItem?.image && (
+                      <div className="item-image">
+                        <img src={item.menuItem.image} alt={item.menuItem?.name || 'Item'} />
+                      </div>
+                    )}
+                    <div className="item-details">
+                      <span className="item-name">{item.menuItem?.name || 'Item'}</span>
+                      <span className="item-qty">Quantity: {item.quantity}</span>
+                    </div>
+                  </div>
                   <span className="item-price">RM{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
                 </div>
               ))}

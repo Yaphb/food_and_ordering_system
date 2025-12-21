@@ -172,7 +172,7 @@
 .cta-section p {
   font-size: 1.375rem;
   margin-bottom: 48px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--admin-surface);
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
