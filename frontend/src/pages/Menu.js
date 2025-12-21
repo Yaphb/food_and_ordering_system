@@ -7,6 +7,66 @@ import { ToastContext } from '../context/ToastContext';
 import { API_URL } from '../config';
 import './Menu.css';
 
+// Christmas Decorations Component
+const ChristmasDecorations = () => {
+  const [decorations, setDecorations] = useState([]);
+
+  useEffect(() => {
+    // Generate random Christmas decorations
+    const generateDecorations = () => {
+      const decorationTypes = [
+        { emoji: '🎄', size: 'large', glow: true },
+        { emoji: '⭐', size: 'medium', glow: true },
+        { emoji: '🎁', size: 'medium', glow: false },
+        { emoji: '🔔', size: 'small', glow: true },
+        { emoji: '🎀', size: 'small', glow: false },
+        { emoji: '🕯️', size: 'small', glow: true },
+        { emoji: '❄️', size: 'small', glow: true },
+        { emoji: '🎅', size: 'medium', glow: false },
+        { emoji: '🦌', size: 'medium', glow: false },
+        { emoji: '🎊', size: 'small', glow: false }
+      ];
+
+      const newDecorations = [];
+      for (let i = 0; i < 15; i++) {
+        const decoration = decorationTypes[Math.floor(Math.random() * decorationTypes.length)];
+        newDecorations.push({
+          id: i,
+          ...decoration,
+          left: Math.random() * 100,
+          top: Math.random() * 100,
+          animationDelay: Math.random() * 10,
+          animationDuration: 8 + Math.random() * 12,
+          rotation: Math.random() * 360
+        });
+      }
+      setDecorations(newDecorations);
+    };
+
+    generateDecorations();
+  }, []);
+
+  return (
+    <div className="christmas-decorations">
+      {decorations.map((decoration) => (
+        <div
+          key={decoration.id}
+          className={`christmas-decoration ${decoration.size} ${decoration.glow ? 'glow' : ''}`}
+          style={{
+            left: `${decoration.left}%`,
+            top: `${decoration.top}%`,
+            animationDelay: `${decoration.animationDelay}s`,
+            animationDuration: `${decoration.animationDuration}s`,
+            transform: `rotate(${decoration.rotation}deg)`
+          }}
+        >
+          {decoration.emoji}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -153,10 +213,19 @@ const Menu = () => {
     };
   }, []);
 
-  if (loading) return <div className="loading">Loading menu...</div>;
+  if (loading) return (
+    <div className="loading christmas-loading">
+      <div className="christmas-loader">
+        <span>🎄</span>
+        <span>Loading Christmas Menu...</span>
+        <span>🎁</span>
+      </div>
+    </div>
+  );
 
   return (
     <>
+      <ChristmasDecorations />
       <div className="menu-container">
         <h1>Our Menu</h1>
         
