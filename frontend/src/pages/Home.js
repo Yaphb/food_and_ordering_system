@@ -3,53 +3,53 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Home.css';
 
+// Array of welcome messages for variety - moved outside component to avoid recreating on each render
+const welcomeMessages = [
+  {
+    title: "Delicious Food\nDelivered Fast",
+    subtitle: "Experience the finest meals crafted with premium ingredients and delivered straight to your door. Your next favorite dish is just a click away."
+  },
+  {
+    title: "Savor Every\nMoment",
+    subtitle: "Indulge in culinary excellence with our handpicked selection of gourmet dishes. From comfort food to exotic flavors, we bring the world to your table."
+  },
+  {
+    title: "Fresh Flavors\nAwait You",
+    subtitle: "Discover a symphony of tastes prepared by our expert chefs using the freshest ingredients. Every bite tells a story of passion and quality."
+  },
+  {
+    title: "Your Culinary\nAdventure Starts Here",
+    subtitle: "Embark on a gastronomic journey with our diverse menu featuring local favorites and international cuisines. Satisfaction guaranteed with every order."
+  },
+  {
+    title: "Taste the\nDifference",
+    subtitle: "Where quality meets convenience. Our commitment to excellence ensures that every meal is a memorable experience delivered right to your doorstep."
+  }
+];
+
+// Personalized messages for logged-in users - moved outside component to avoid recreating on each render
+const personalizedMessages = [
+  {
+    subtitle: "Welcome back! Ready to explore new flavors or order your usual favorites? We've got something special waiting for you."
+  },
+  {
+    subtitle: "Great to see you again! Your taste buds are in for a treat with our latest additions and chef's recommendations."
+  },
+  {
+    subtitle: "We've missed you! Discover what's new on our menu or revisit those dishes that made you smile before."
+  },
+  {
+    subtitle: "Ready for another delicious adventure? Our kitchen is buzzing with fresh ingredients just for you."
+  },
+  {
+    subtitle: "Your next amazing meal is just a few clicks away. Let's make today deliciously memorable!"
+  }
+];
+
 const Home = () => {
   const { user } = useContext(AuthContext);
   const [welcomeMessage, setWelcomeMessage] = useState({ title: '', subtitle: '' });
   const [shapeConfig, setShapeConfig] = useState([]);
-
-  // Array of welcome messages for variety
-  const welcomeMessages = [
-    {
-      title: "Delicious Food\nDelivered Fast",
-      subtitle: "Experience the finest meals crafted with premium ingredients and delivered straight to your door. Your next favorite dish is just a click away."
-    },
-    {
-      title: "Savor Every\nMoment",
-      subtitle: "Indulge in culinary excellence with our handpicked selection of gourmet dishes. From comfort food to exotic flavors, we bring the world to your table."
-    },
-    {
-      title: "Fresh Flavors\nAwait You",
-      subtitle: "Discover a symphony of tastes prepared by our expert chefs using the freshest ingredients. Every bite tells a story of passion and quality."
-    },
-    {
-      title: "Your Culinary\nAdventure Starts Here",
-      subtitle: "Embark on a gastronomic journey with our diverse menu featuring local favorites and international cuisines. Satisfaction guaranteed with every order."
-    },
-    {
-      title: "Taste the\nDifference",
-      subtitle: "Where quality meets convenience. Our commitment to excellence ensures that every meal is a memorable experience delivered right to your doorstep."
-    }
-  ];
-
-  // Personalized messages for logged-in users
-  const personalizedMessages = [
-    {
-      subtitle: "Welcome back! Ready to explore new flavors or order your usual favorites? We've got something special waiting for you."
-    },
-    {
-      subtitle: "Great to see you again! Your taste buds are in for a treat with our latest additions and chef's recommendations."
-    },
-    {
-      subtitle: "We've missed you! Discover what's new on our menu or revisit those dishes that made you smile before."
-    },
-    {
-      subtitle: "Ready for another delicious adventure? Our kitchen is buzzing with fresh ingredients just for you."
-    },
-    {
-      subtitle: "Your next amazing meal is just a few clicks away. Let's make today deliciously memorable!"
-    }
-  ];
 
   // Generate random shapes configuration
   const generateRandomShapes = () => {
