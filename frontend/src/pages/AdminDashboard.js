@@ -77,27 +77,7 @@ const AdminDashboard = () => {
     };
   }, [showForm]);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/menu/categories`);
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      // For now, let's extract categories from existing menu items as a fallback
-      if (menuItems.length > 0) {
-        const categories = [...new Set(menuItems.map(item => item.category))];
-        const sortedCategories = categories.sort((a, b) => {
-          if (a === 'none') return -1;
-          if (b === 'none') return 1;
-          return a.localeCompare(b);
-        });
-        setCategories(sortedCategories);
-      } else {
-        // Ultimate fallback
-        setCategories(['none', 'appetizer', 'main', 'dessert', 'beverage']);
-      }
-    }
-  };
+  // Removed unused fetchCategories function - categories are now extracted from menu items
 
   const fetchMenuItems = async () => {
     try {
@@ -166,15 +146,12 @@ const AdminDashboard = () => {
       };
 
       const itemId = editingItem?.id || editingItem?._id;
-      let updatedItem;
       
       if (editingItem) {
-        const response = await axios.put(`${API_URL}/api/menu/${itemId}`, submitData);
-        updatedItem = response.data;
+        await axios.put(`${API_URL}/api/menu/${itemId}`, submitData);
         showToast('Menu item updated successfully!', 'success');
       } else {
-        const response = await axios.post(`${API_URL}/api/menu`, submitData);
-        updatedItem = response.data;
+        await axios.post(`${API_URL}/api/menu`, submitData);
         showToast('Menu item created successfully!', 'success');
       }
       

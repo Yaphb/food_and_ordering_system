@@ -35,7 +35,7 @@ const Orders = () => {
   const resendReceipt = async (orderId) => {
     setResendingReceipt(orderId);
     try {
-      const response = await axios.post(`${API_URL}/api/email/resend-receipt/${orderId}`);
+      await axios.post(`${API_URL}/api/email/resend-receipt/${orderId}`);
       showToast('Email receipt sent successfully!', 'success');
     } catch (error) {
       console.error('Error resending receipt:', error);

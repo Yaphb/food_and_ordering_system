@@ -48,6 +48,37 @@
   animation: slideUp 0.7s ease-out 0.1s both;
 }
 
+/* Personalized greeting styles */
+.hero h1 .greeting-time {
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.hero h1 .user-name {
+  font-size: 5.5rem;
+  font-weight: 800;
+  color: var(--color-black);
+  background: linear-gradient(135deg, var(--color-black) 0%, var(--color-gray-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -202,6 +233,15 @@
   }
   
   .hero h1 {
+    font-size: 3rem;
+  }
+
+  .hero h1 .greeting-time {
+    font-size: 2rem;
+    margin-bottom: 4px;
+  }
+
+  .hero h1 .user-name {
     font-size: 3rem;
   }
   

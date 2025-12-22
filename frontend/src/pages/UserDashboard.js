@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { ToastContext } from '../context/ToastContext';
 import { API_URL } from '../config';
@@ -36,10 +36,10 @@ const UserDashboard = () => {
     };
 
     testConnection();
-  }, []);
+  }, [fetchUsers, showToast]);
 
   // User management functions
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -86,7 +86,7 @@ const UserDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   const handleRoleChange = async (userId, newRole) => {
     try {
